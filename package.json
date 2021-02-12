@@ -1,0 +1,15 @@
+{
+  "author": {
+    "name": "Evgeny Votyaκοv"
+  },
+  "description": "Parse and plot Garmin .fit file",
+  "license": "MIT",
+  "main": "http-server-static.js",
+  "name": "fitplotter",
+  "scripts": {},
+  "version": "0.0.2",
+  "dependencies": {
+    "open": "^7.4.0",
+    "portscanner": "^2.2.0"
+  }
+}
