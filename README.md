@@ -19,12 +19,12 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 
 ## Installation
 
-##### Installation for non-programmers who have links to separate \*.zip files
+##### Installation for non-programmers who have a trusted link to  \*.zip files (to avoid malware the link must be obtained from me personally by email).
 
 - Download fitplotter.zip and unzip. 
 - Download http-server-static.zip and unzip next to the folder "fitplotter" created by unzipping fitplotter.zip
 - Double click on fitplotter.bat to launch the program. If it  does not start, check paths inside fitplotter.bat.
-- Inside the programm, press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with *.fit files located for the demonstration purpose in the folder "examples."
+- Inside the programm, press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with \*.fit files located for the demonstration purpose in the folder "examples."
 
 ##### Installation for non-programmers who found this program in github
 
@@ -63,4 +63,4 @@ Many thanks are to CanvasJS and Leaflet libraries for smooth work of the applica
 MIT license
 
 
-(c) Evgeny Votyakov aka karaul, Nicosia, Cyprus, 2021
+(c) Evgeny Votyakov aka karaul ([about me](http://www.irc-club.ru/karaul.html) in Russian), Nicosia, Cyprus, 2021
