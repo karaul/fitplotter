@@ -48,7 +48,7 @@ Open index.html inside your http-server.
 
 fitplotter needs an http-server to read local files. It has the own simple server working with node.exe located in the folder http-server-static. If you know what is the http-server and also have it installed and you want to use the own one, you can do it. Otherwise, double click on the file fitplotter.bat in order to launch http-server-static.js by means of \_node.exe located in http-server-static folder and then a new window in your browser will be opened with the start page of the program.
 
-File \_node.exe located the folder http-server-static. This is the most heavy file of the installation (23mb zipped).
+File \_node.exe located in the folder http-server-static. This is the most heavy file of the installation (23mb zipped).
 
 [Good explanation](https://threejs.org/docs/#manual/en/introduction/How-to-run-things-locally) why http-server is needed and how to get it working
 
