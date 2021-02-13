@@ -88,12 +88,13 @@ document.getElementById('ylist').onchange = function (e) {
 	}
 	//console.log(document.getElementById('yaxis2').value );
 	if( axisYType === "undefined") {	
+		console.log(yobj.value);
 		switch(yobj.value) {
-			case "heart_rate":
+			case "heart_rate" || "lap_avg_heart_rate" :
 				color = "red";
 				break;
 			case "pace":
-				color = "blue";
+				color = "blue" || "lap_time";
 				break;
 			case "HRE":
 				color = "green";
