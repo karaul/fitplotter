@@ -1,6 +1,6 @@
 # fitplotter
 
-A simple one-page tool to plot parameters recorded in the sport .fit file
+A simple one-page tool to plot parameters recorded in the \*.fit file used by Garmin and Suunto.
 
 ## Motivation 
 
@@ -8,7 +8,8 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 
 ## Features 
 
-- Plot Garmin data from different \*.fit files in one plot;
+- Works with any \*.fit file (Garmin, Suunto)
+- Plot data from different \*.fit files in one plot;
 - Independent y-axes;
 - hide/unhide curves by clicking on curve's name in the below legend;
 - Synchronization of the plot pointer at the left with the map marker on the right;
@@ -51,7 +52,6 @@ File \_node.exe located the folder http-server-static. This is the most heavy fi
 
 [Good explanation](https://threejs.org/docs/#manual/en/introduction/How-to-run-things-locally) why http-server is needed and how to get it working
 
-
 ## Contributors
 
 [fit-file-parser](https://github.com/jimmykane/fit-parser) by Dimitrios Kanellopoulos was taken and modified to get it working with HTML5.
@@ -63,4 +63,4 @@ Many thanks are to CanvasJS and Leaflet libraries for smooth work of the applica
 MIT license
 
 
-(c) Evgeny Votyakov aka karaul, 2021
+(c) Evgeny Votyakov aka karaul, Nicosia, Cyprus, 2021
