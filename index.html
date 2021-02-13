@@ -10,18 +10,13 @@
 		crossorigin="" /> -->
 	<link rel="stylesheet" href="/src/leaflet/dist/leaflet.css" />
 	<script src="/src/leaflet/dist/leaflet.js"></script>
-		
 	<!-- Make sure you put this AFTER Leaflet's CSS -->
 	<!-- <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
 		integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
 		crossorigin=""></script> -->
 	<!--end of Leaflet's CSS -->
-	<!-- Plot library -->
 	<!-- <script type="text/javascript" src="http://canvasjs.com/assets/script/canvasjs.min.js"></script> -->
 	<script type="text/javascript" src="/src/canvasjs/canvasjs.min.js"></script>
-	<!-- <link rel="stylesheet" src="dygraph.css" /> -->
-	<!-- <script type="text/javascript"  src="dygraph.js"></script> -->
-	<!-- <script src='https://cdn.plot.ly/plotly-latest.min.js'></script> -->
 
 	<style>
 	* {
@@ -31,29 +26,6 @@
 	.container { border: 1p;  padding: 6px;}
 	.column1 { width: 50%; float: left; padding: 5px; }	
 	.column2 { width: 50%; height: 600px; float: left; padding: 2px;}  
-
-	  .row { border: 1p;  padding: 6px;}
-	  /* Create two equal columns that floats next to each other */
-	  .column {
-		float: left;
-		width: 50%;
-		padding: 10px;
-		height: 300px; /* Should be removed. Only for demonstration */
-	  }
-	  
-	  /* Clear floats after the columns */
-	  .row:after {
-		content: "";
-		display: table;
-		clear: both;
-	  }
-	  
-	  /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
-	  /* @media screen and ( max-width: 600px ) {
-		.column {
-		  width: 100%;
-		}
-	  } */
 	  
 	  </style>
 
@@ -64,23 +36,13 @@
 		<!-- <p> <input id="addfile" type="file" value=''/> </p> -->
 		<label for="xaxis">x-axis:</label>
 		<select name="x" id="xaxis">
-			<!-- <option value="distance">distance</option> -->
-			<!-- <option value="timestamp">time</option> -->
 		</select>
 		<label for="ylist">add to y-axis:</label>
 		<select name="y" id="ylist"></select>
-
-		<!--<select name="yaxis2" id="yaxis2">
-			<option value="primary">left</option> 
-			<option value="secondary">right</option> 
-		</select>
-		<input id="adddata" type="checkbox" value="false">	<label for="adddata">hold on</label> -->
 		<input id="clean" type="button" value='Clean plot'/> 
 	<div class="container">
 		<div class="column1" id="plotarea" style="width:50%; height:600px; padding-left: 0pt;"></div>
 		<div class="column2" id="map" style="width:50%; height:600px; padding-right: 0pt"></div>
-		<!-- <div class="column1" id="plotarea"></div> -->
-		<!-- <div class="column2" id="map"></div> -->
 	</div>
 	<br/>&nbsp><br/>
 	<p style="font-size: 10px; text-align:center">fitplotter &#169 karaul 2021 </p>;

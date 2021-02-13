@@ -10,21 +10,21 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 
 ## Features 
 
-- Works with any \*.fit file (Garmin, Suunto)
+- Works with any \*.fit file (Garmin, Suunto);
 - Plot data from different \*.fit files in one plot;
 - Independent y-axes;
 - hide/unhide curves by clicking on curve's name in the below legend;
 - Synchronization of the plot pointer at the left with the map marker on the right;
 - zoom of plot area by mouse click;
 - Automatically calculate an average of the plotted parameters in the zoomed area;
-- Visualise laps
+- Visualise laps;
 
 ## Installation
 
 ##### Installation for non-programmers who have a trusted link to  \*.zip files (to avoid malware the link must be obtained from me personally by email).
 
 - Download fitplotter.zip and unzip. 
-- Download http-server-static.zip and unzip next to the folder "fitplotter" created by unzipping fitplotter.zip
+- Download http-server-static.zip and unzip next to the folder "fitplotter" created by unzipping fitplotter.zip.
 - Double click on fitplotter.bat to launch the program. If it  does not start, check paths inside fitplotter.bat.
 - Inside the programm, press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with \*.fit files located for the demonstration purpose in the folder "examples."
 
@@ -32,7 +32,7 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 
 - download everything as zip file and unzip. 
 - Install [nodejs](https://nodejs.org/en/) in your system. 
-- Put in fitplotter.bat proper path into the installed node.exe
+- Put in fitplotter.bat proper path into the installed node.exe.
 - Double click on fitplotter.bat
 
 ##### Installation for programmers who found it in github
@@ -43,8 +43,7 @@ node .
 
 ##### Installation if you have own http-server 
 
-Download only index.html and ./src/\*
-Open index.html inside your http-server.
+Download only index.html and ./src/\* and then open index.html inside your http-server.
 
 ## How it works
 
