@@ -18,7 +18,7 @@ function randomColor(opacity) {
 
 function getDataFromFitForCanvasJS(fitdatalocal, fieldx, fieldy) {
 	var dataPoints = [];
-	console.log(fieldy);
+	//console.log(fieldy);
 	if (fieldx === "timestamp" && fieldy.slice(0,3) === "lap" ){		
 		// intervals
 		for (var k=0; k < fitdatalocal.laps.length; k++) {
@@ -88,7 +88,7 @@ document.getElementById('ylist').onchange = function (e) {
 	}
 	//console.log(document.getElementById('yaxis2').value );
 	if( axisYType === "undefined") {	
-		console.log(yobj.value);
+		//console.log(yobj.value);
 		switch(yobj.value) {
 			case "heart_rate" || "lap_avg_heart_rate" :
 				color = "red";
@@ -101,7 +101,7 @@ document.getElementById('ylist').onchange = function (e) {
 				break;
 			default:
 		}
-		if( axisYops.length < axisY2ops.length) {	
+		if( axisYops.length < axisY2ops.length+1) {	
 			axisYType = "primary";
 			axisYops.push( { title: yobj.value, lineColor: color, autoCalculate: true, 
 				labelFontSize: 15, titleFontSize: 15, gridThickness: 0.15});
@@ -146,6 +146,9 @@ document.getElementById('ylist').onchange = function (e) {
 
     chart.render();
 }
+
+//document.getElementById('xaxis').options.add(new Option("distance", "distance"));
+//document.getElementById('xaxis').options.add(new Option("timestamp", "timestamp"));
 
 var fReader = new FileReader();
 var fileInput = document.getElementById('myfile');
@@ -325,46 +328,59 @@ fReader.onload = function (e) {
 			}
 
 			fitdata = data;
-			document.getElementById('xaxis').options.length = 0;
-			document.getElementById('ylist').options.length = 0;
-			for (let row of data.records) {
-				for (let [key, value] of Object.entries(row)) {
-					if (!ylist.includes(key)) {
-						ylist.push(key);
-						if (key === "distance" || key === "timestamp") {
-							document.getElementById('xaxis').options.add(new Option(key, key))
-						} else {
-							document.getElementById('ylist').options.add(new Option(key, key))
+			
+			chartdata = chartdata || [];
+			if(chartdata.length == 0) {
+				// fill drop list options
+				document.getElementById('xaxis').options.length = 0;
+				document.getElementById('ylist').options.length = 0;
+				for (let row of data.records) {
+					for (let [key, value] of Object.entries(row)) {
+						if (!ylist.includes(key)) {
+							ylist.push(key);
+							if (key === "distance" || key === "timestamp") {
+								document.getElementById('xaxis').options.add(new Option(key, key))
+							} else {
+								document.getElementById('ylist').options.add(new Option(key, key))
+							}
 						}
 					}
+				}
+				// set default xaxis as "distance"
+				document.getElementById('xaxis').value = "distance";
+				document.getElementById('xaxis').dispatchEvent(new Event('change'));
+				// make few  plots 
+				var yaxisshow = ["heart_rate", "pace", "HRE", "speed", "position_lat", "position_long"], 
+				kstart=[0,3,4], kend=[3,4,6], done=false;	
+				for ( var kk=0; kk<kstart.length; kk++) {		
+					for (k=kstart[kk]; k < kend[kk]; k++) {
+						//console.log(yaxisshow[k]);
+						if (ylist.includes(yaxisshow[k])) {
+							done = true;
+							document.getElementById('ylist').value = yaxisshow[k];
+							document.getElementById('ylist').dispatchEvent(new Event('change'));
+						}
+					}
+					if (done == true) break;
 				}
 			}
 		}
 	});
+	
+	//chartdata = chartdata || [];
+	//if(chartdata.length == 0) {
+	//	document.getElementById('xaxis').value = "distance";
+	//	document.getElementById('xaxis').dispatchEvent(new Event('change'));
+	//}
 
 	//document.getElementById('ylist').options.add(new Option("laps", "laps"))
 	//console.log(fitdata);
 
-	// set default xaxis as "distance"
-	document.getElementById('xaxis').value = "distance";
-	document.getElementById('xaxis').dispatchEvent(new Event('change'));
 
 	// show few y on the plot
 	//document.getElementById('ylist').value = "heart_rate";
 	//document.getElementById('ylist').dispatchEvent(new Event('change'));
-	var yaxisshow = ["heart_rate", "pace", "HRE", "speed", "position_lat", "position_long"], 
-		kstart=[0,3,4], kend=[3,4,6], done=false;	
-	for ( var kk=0; kk<kstart.length; kk++) {		
-		for (k=kstart[kk]; k < kend[kk]; k++) {
-			//console.log(yaxisshow[k]);
-	    	if (ylist.includes(yaxisshow[k])) {
-				done = true;
-				document.getElementById('ylist').value = yaxisshow[k];
-				document.getElementById('ylist').dispatchEvent(new Event('change'));
-			}
-		}
-        if (done == true) break;
-	}
+	
 
 	//if (document.getElementById('adddata').checked === true) {
 	//	document.getElementById('ylist').dispatchEvent(new Event('change'));
@@ -378,7 +394,8 @@ fReader.onload = function (e) {
 	//for (i=0;i<track.length;i++) {
 	//	mymap.removeLayer(points[i]);
 	//}
-
+	
+    // now work with leallet 
 	trackdata = [];
 	var latt_aver = 0,
 		long_aver = 0,
@@ -504,9 +521,9 @@ document.getElementById('clean').onclick = function (e) {
 		//mapPosition.setLatLng( [] );
 		mapSegment.setLatLngs( [[]] );
 
-		if ( mymap.hasLayer(mapSegmentΙnfo)) {
-			mymap.removeLayer(mapSegmentΙnfo);
-		}
+		//if ( mymap.hasLayer(mapSegmentΙnfo)) {
+		//	mymap.removeLayer(mapSegmentΙnfo);
+		//}
 	}
 
 }

@@ -2,6 +2,8 @@
 
 A simple one-page tool to plot parameters recorded in the \*.fit file used by Garmin and Suunto.
 
+![Alt text](/screenshot.jpg)
+
 ## Motivation 
 
 Garmin device does  recording the measured paremeters into a binary \*.fit file as a function of time and distance. Then, in Garmin Connect you can visualise these metrics in graphs. I found Garmin Connect a bit inconvenient for everyday analysis. For instance, I could not check heart rate efficiency (HRE) (if you do not know read about HRE [here](https://drive.google.com/file/d/17wK0y5p7rYlMRBogpZ9yicdnV191E1qx/view?usp=sharing) and   [in Russian here](https://grumbler.livejournal.com/104934.html)) during the run. Then, the data from different days could not be visualised in one plot. Also, it is not convenient in Garmin Connect to see simultaneously a pointer in the plot and on the GPS track. Moreover, Garmin Connect is slow, and it's always better to keep your files in your local storage and have opportunity to check them.  And finally, I wanted to learn JS programming.
