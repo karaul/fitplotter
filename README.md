@@ -2,7 +2,7 @@
 
 A simple one-page tool to plot parameters recorded in the \*.fit file used by Garmin and Suunto.
 
-![Alt text](/screenshot.jpg)
+![Alt text](https://github.com/karaul/fitplotter/blob/main/screenshot.JPG?raw=true)
 
 ## Motivation 
 
