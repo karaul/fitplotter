@@ -14,7 +14,7 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 - Synchronization of the plot pointer at the left with the map marker on the right;
 - zoom of plot area by mouse click;
 - Automatically calculate an average of the plotted parameters in the zoomed area;
-- visualise laps
+- Visualise laps
 
 ## Installation
 
@@ -63,4 +63,4 @@ Many thanks are to CanvasJS and Leaflet libraries for smooth work of the applica
 MIT license
 
 
-(c) Evgeny Votyakov aka [karaul](http://www.irc-club.ru/karaul.html), 2021
+(c) Evgeny Votyakov aka karaul, 2021
