@@ -18,14 +18,16 @@ function randomColor(opacity) {
 
 function getDataFromFitForCanvasJS(fitdatalocal, fieldx, fieldy) {
 	var dataPoints = [];
-	//console.log(fieldx);
-	//console.log(fieldy);
-	if (fieldx === "timestamp" && fieldy === "laps" ){		
+	console.log(fieldy);
+	if (fieldx === "timestamp" && fieldy.slice(0,3) === "lap" ){		
 		// intervals
-		for (var k=0; k < fitdatalocal.laps.length; k++) {			
+		for (var k=0; k < fitdatalocal.laps.length; k++) {
 			dataPoints.push({
 				x: fitdatalocal.laps[k].start_time,
-				y: k
+				y: (fieldy === "lap_avg_heart_rate") ? 
+					fitdatalocal.laps[k].avg_heart_rate: fitdatalocal.laps[k].total_elapsed_time,
+				//y: k,
+				indexLabel: (k%4==0)? k.toString(): ""
 			});
 		}
 	} else {
@@ -41,8 +43,27 @@ function getDataFromFitForCanvasJS(fitdatalocal, fieldx, fieldy) {
 }
 
 document.getElementById('xaxis').onchange = function (e) {
-	var t = document.getElementById('xaxis').value;
-	axisXops.title = (t === "timestamp" ? "time from the start, hours" : "distance, km");
+	
+	document.getElementById('clean').dispatchEvent(new Event('click'));
+
+	var xaxisFlag = document.getElementById('xaxis').value === "timestamp";
+	axisXops.title = (xaxisFlag ? "time from the start, hours" : "distance, km");
+	var ylist = document.getElementById("ylist");
+	if (xaxisFlag) {
+		ylist.options.add(new Option("lap_avg_heart_rate", "lap_avg_heart_rate"));
+		ylist.options.add(new Option("lap_time", "lap_time"));
+	} else {
+		var lap_option_exist = true;
+		while (lap_option_exist) {
+			lap_option_exist = false;
+			for (var i=0; i < ylist.length; i++) {
+    			if (ylist.options[i].value.slice(0,3) === 'lap') {
+					ylist.remove(i);
+					lap_option_exist = true;
+				}
+			}
+		}
+	}
 }
 
 document.getElementById('ylist').onchange = function (e) {
@@ -93,19 +114,28 @@ document.getElementById('ylist').onchange = function (e) {
 	}
 
 	var datapoints = getDataFromFitForCanvasJS(fitdata, xobj.value, yobj.value);
-	var chartdataType = (yobj.value === "laps" && xobj.value === "timestamp") ? "scatter" : "line";
+	var chartdataType = "line", markerType="none", markerSize=0;
+	if (yobj.value.slice(0,3) === "lap" && xobj.value === "timestamp") {
+		chartdataType = "scatter";
+		markerType = "triangle";
+		markerSize = 8;
+	}
 	//console.log(chartdataType);
 	chartdata = chartdata || [];
 	chartdata.push( {
-		type: chartdataType, //"line", // "scatter"
 		color: color,
 		lineThickness: 0.5,
+		type: chartdataType, //"line", // "scatter"
+		markerType: markerType,
+		markerSize: markerSize,
 		showInLegend: true,
 		//name: yobj.value + " " + new Intl.DateTimeFormat('ru-RU').format(fitdata.activity.local_timestamp),
 		// see also line 332
 		name: yobj.value + " " + new Intl.DateTimeFormat('ru-RU').format(local_timestamp),
 		axisYType: axisYType, //document.getElementById('yaxis2').value,
 		axisYIndex: axisYIndex, 
+		indexLabelPlacement: "inside",
+		indexLabelFontSize: 15,
 		dataPoints: datapoints 
 		//backgroundColor: "rgba(153,255,51,0.4)",
 		//mouseover: updateMapPosition
@@ -271,6 +301,7 @@ fReader.onload = function (e) {
 			//console.log(error);
 		} else {
 			//console.log(data);
+			//console.log(data.laps);
 			if ("activity" in data) {
 				local_timestamp =  ("local_timestamp" in data.activity ? 
 					data.activity.local_timestamp: data.records[0].timestamp);
@@ -310,7 +341,7 @@ fReader.onload = function (e) {
 		}
 	});
 
-	document.getElementById('ylist').options.add(new Option("laps", "laps"))
+	//document.getElementById('ylist').options.add(new Option("laps", "laps"))
 	//console.log(fitdata);
 
 	// set default xaxis as "distance"
@@ -324,7 +355,7 @@ fReader.onload = function (e) {
 		kstart=[0,3,4], kend=[3,4,6], done=false;	
 	for ( var kk=0; kk<kstart.length; kk++) {		
 		for (k=kstart[kk]; k < kend[kk]; k++) {
-			console.log(yaxisshow[k]);
+			//console.log(yaxisshow[k]);
 	    	if (ylist.includes(yaxisshow[k])) {
 				done = true;
 				document.getElementById('ylist').value = yaxisshow[k];
@@ -405,11 +436,9 @@ fReader.onload = function (e) {
 		}
 	} else {	    
 		var faketrack = [ // fake segment to get popup with averaged
-				//[35.156025,33.3766633],
-				//[35.1610533,33.3810125],
-				//[35.1563424,33.3827466],
-				//[35.1556525,33.3785783],
-				[35.156025,33.3766633]
+				//[35.156025,33.3766633], // Nicosia
+				//[55.752121, 37.617664], // Moscow
+				[55.830431, 49.066081]  // Kazan
 		];
 		mymap.setView(faketrack[Math.round(Math.random()*(trackdata.length-1)/2)], 14);		
 		mapSegment =  L.polyline(faketrack, { color: "red", weight: 5 }).addTo(mymap);
