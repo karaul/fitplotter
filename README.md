@@ -1,6 +1,6 @@
 # fitplotter
 
-A simple one-page tool to plot parameters recorded in the sport .fit file
+A simple one-page tool to plot parameters recorded in the \*.fit file used by Garmin and Suunto.
 
 ## Motivation 
 
@@ -8,7 +8,8 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 
 ## Features 
 
-- Plot Garmin data from different \*.fit files in one plot;
+- Works with any \*.fit file (Garmin, Suunto)
+- Plot data from different \*.fit files in one plot;
 - Independent y-axes;
 - hide/unhide curves by clicking on curve's name in the below legend;
 - Synchronization of the plot pointer at the left with the map marker on the right;
@@ -18,12 +19,12 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 
 ## Installation
 
-##### Installation for non-programmers who have links to separate \*.zip files
+##### Installation for non-programmers who have a trusted link to  \*.zip files (to avoid malware the link must be obtained from me personally by email).
 
 - Download fitplotter.zip and unzip. 
 - Download http-server-static.zip and unzip next to the folder "fitplotter" created by unzipping fitplotter.zip
 - Double click on fitplotter.bat to launch the program. If it  does not start, check paths inside fitplotter.bat.
-- Inside the programm, press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with *.fit files located for the demonstration purpose in the folder "examples."
+- Inside the programm, press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with \*.fit files located for the demonstration purpose in the folder "examples."
 
 ##### Installation for non-programmers who found this program in github
 
@@ -47,10 +48,9 @@ Open index.html inside your http-server.
 
 fitplotter needs an http-server to read local files. It has the own simple server working with node.exe located in the folder http-server-static. If you know what is the http-server and also have it installed and you want to use the own one, you can do it. Otherwise, double click on the file fitplotter.bat in order to launch http-server-static.js by means of \_node.exe located in http-server-static folder and then a new window in your browser will be opened with the start page of the program.
 
-File \_node.exe located the folder http-server-static. This is the most heavy file of the installation (23mb zipped).
+File \_node.exe located in the folder http-server-static. This is the most heavy file of the installation (23mb zipped).
 
 [Good explanation](https://threejs.org/docs/#manual/en/introduction/How-to-run-things-locally) why http-server is needed and how to get it working
-
 
 ## Contributors
 
@@ -63,4 +63,4 @@ Many thanks are to CanvasJS and Leaflet libraries for smooth work of the applica
 MIT license
 
 
-(c) Evgeny Votyakov aka karaul, 2021
+(c) Evgeny Votyakov aka karaul ([about me](http://www.irc-club.ru/karaul.html) in Russian), Nicosia, Cyprus, 2021
