@@ -18,9 +18,7 @@ function randomColor(opacity) {
 
 function getDataFromFitForCanvasJS(fitdatalocal, fieldx, fieldy) {
 	var dataPoints = [];
-	//console.log(fieldy);
 	if (fieldx === "timestamp" && fieldy.slice(0,3) === "lap" ){		
-		// intervals
 		for (var k=0; k < fitdatalocal.laps.length; k++) {
 			dataPoints.push({
 				x: fitdatalocal.laps[k].start_time,
@@ -31,45 +29,42 @@ function getDataFromFitForCanvasJS(fitdatalocal, fieldx, fieldy) {
 			});
 		}
 	} else {
-		for (let row in fitdatalocal.records) {
-			var record = fitdatalocal.records[row];
-			dataPoints.push({
-				x: record[fieldx],
-				y: record[fieldy]
-			});
+		if (fieldx === "lap_number"){
+			for (var k=0; k < fitdatalocal.laps.length; k++) {
+				dataPoints.push({
+					x: k,
+					y: fitdatalocal.laps[k][fieldy],
+				});
+			}
+		} else {
+			for (var k in fitdatalocal.records) {
+				dataPoints.push({
+					x: fitdatalocal.records[k][fieldx],
+					y: fitdatalocal.records[k][fieldy]
+				});
+			}
 		}
 	}
 	return dataPoints;
 }
 
 document.getElementById('xaxis').onchange = function (e) {
-	
+	// assign ylist options depending on xaxis	
 	document.getElementById('clean').dispatchEvent(new Event('click'));
-
-	var xaxisFlag = document.getElementById('xaxis').value === "timestamp";
-	axisXops.title = (xaxisFlag ? "time from the start, hours" : "distance, km");
-	var ylist = document.getElementById("ylist");
-	if (xaxisFlag) {
-		ylist.options.add(new Option("lap_avg_heart_rate", "lap_avg_heart_rate"));
-		ylist.options.add(new Option("lap_time", "lap_time"));
-	} else {
-		var lap_option_exist = true;
-		while (lap_option_exist) {
-			lap_option_exist = false;
-			for (var i=0; i < ylist.length; i++) {
-    			if (ylist.options[i].value.slice(0,3) === 'lap') {
-					ylist.remove(i);
-					lap_option_exist = true;
-				}
-			}
-		}
+    document.getElementById("ylist").options.length = 0;
+	var xaxis = document.getElementById('xaxis').value;
+	var ylist = yOptions[xaxis];
+	//console.log(ylist);
+	for( var k=0; k<ylist.length; k++){
+		//console.log(ylist[k]);
+		document.getElementById("ylist").options.add( new Option( ylist[k], ylist[k] ) );
 	}
+	axisXops.title = xaxisLabel[xaxis];
 }
 
 document.getElementById('ylist').onchange = function (e) {
 	var yobj = document.getElementById('ylist');
 	var xobj = document.getElementById('xaxis');
-	//alert(yobj.options[yobj.selectedIndex].text + "  " + yobj.value);
 	//console.log(document.getElementById('yaxis2').value);
 	var axisYIndex, axisYType = "undefined";
 	var color = randomColor(1);
@@ -80,7 +75,6 @@ document.getElementById('ylist').onchange = function (e) {
 		for (var k in a) {
 			if(a[k].title === yobj.value ){ 
 				axisYIndex = k;
-				//document.getElementById('yaxis2').value = (kk == 0 ? "primary" : "secondary");
 				axisYType = (kk == 0 ? "primary" : "secondary");
 				break  aaloop;
 			}
@@ -88,7 +82,6 @@ document.getElementById('ylist').onchange = function (e) {
 	}
 	//console.log(document.getElementById('yaxis2').value );
 	if( axisYType === "undefined") {	
-		//console.log(yobj.value);
 		switch(yobj.value) {
 			case "heart_rate" || "lap_avg_heart_rate" :
 				color = "red";
@@ -114,7 +107,7 @@ document.getElementById('ylist').onchange = function (e) {
 		}
 	}
 
-	var datapoints = getDataFromFitForCanvasJS(fitdata, xobj.value, yobj.value);
+	//var datapoints = getDataFromFitForCanvasJS(fitdata, xobj.value, yobj.value);
 	var chartdataType = "line", markerType="none", markerSize=0;
 	if (yobj.value.slice(0,3) === "lap" && xobj.value === "timestamp") {
 		chartdataType = "scatter";
@@ -137,7 +130,7 @@ document.getElementById('ylist').onchange = function (e) {
 		axisYIndex: axisYIndex, 
 		indexLabelPlacement: "inside",
 		indexLabelFontSize: 15,
-		dataPoints: datapoints 
+		dataPoints: getDataFromFitForCanvasJS(fitdata, xobj.value, yobj.value) 
 		//backgroundColor: "rgba(153,255,51,0.4)",
 		//mouseover: updateMapPosition
 		//mousemove: updateMapPosition
@@ -147,8 +140,6 @@ document.getElementById('ylist').onchange = function (e) {
     chart.render();
 }
 
-//document.getElementById('xaxis').options.add(new Option("distance", "distance"));
-//document.getElementById('xaxis').options.add(new Option("timestamp", "timestamp"));
 
 var fReader = new FileReader();
 var fileInput = document.getElementById('myfile');
@@ -157,6 +148,10 @@ var chartdata=[];
 var	axisXops = {crosshair: {enabled: true, snapToDataPoint: true, updated: updateMapPosition}, 
 		gridThickness: 0.15, titleFontSize: 15,labelFontSize: 15, labelAngle: 0};
 var axisYops=[], axisY2ops=[]; 
+
+var yOptions={distance: [], timestamp: ["lap_avg_heart_rate","lap_time"], lap_number: []};
+var xaxisLabel = {distance: "distance, km", timestamp: "time from the start, hours", lap_number: "lap number"};
+
 
 var chart = new CanvasJS.Chart("plotarea", {
 	zoomEnabled: true,
@@ -176,50 +171,52 @@ var chart = new CanvasJS.Chart("plotarea", {
 });
 
 function updateMapSegment(e) {
-    if(e.trigger === "zoom"){
-		var xMin = e.axisX[0].viewportMinimum;
-		var xMax = e.axisX[0].viewportMaximum;
-		var xname = document.getElementById('xaxis').value;
-		var ycalc = Array(chartdata.length).fill(0), npts = 0;
-		//console.log(ycalc);
-		//console.log(chartdata);
-		if (withGPS) mapSegment.setLatLngs( [[]] );		
-		// the faster way : (1) find first index at x=xmin, and (2) do loop till xmax ?
-		for (let k in fitdata.records) {
-		//for (var k=0; k < chart.data[0].dataPoints.length; k++){
-			var record = fitdata.records[k];
-			if (record[xname] >=  xMin && record[xname] <=  xMax) {
+	//console.log(document.getElementById('xaxis').value);
+	if (document.getElementById('xaxis').value === "lap_number"){}else{
+    	if(e.trigger === "zoom"){
+			var xMin = e.axisX[0].viewportMinimum;
+			var xMax = e.axisX[0].viewportMaximum;
+			var xname = document.getElementById('xaxis').value;
+			var ycalc = Array(chartdata.length).fill(0), npts = 0;
+			//console.log(ycalc);
+			//console.log(chartdata);
+			if (withGPS) mapSegment.setLatLngs( [[]] );		
+			// the faster way : (1) find first index at x=xmin, and (2) do loop till xmax ?
+			for (let k in fitdata.records) {
+			//for (var k=0; k < chart.data[0].dataPoints.length; k++){
+				var record = fitdata.records[k];
+				if (record[xname] >=  xMin && record[xname] <=  xMax) {
 				
-				if (withGPS && ! (isNaN( record["position_lat"]) || isNaN(record["position_long"])) )
+					if (withGPS && ! (isNaN( record["position_lat"]) || isNaN(record["position_long"])) )
 						mapSegment.addLatLng( [ record["position_lat"], record["position_long"] ] );
 				
-				npts++;
+					npts++;
 				
-				for (var n=0; n < chartdata.length; n++){
-					if (chartdata[n].type === "scatter" ) {} else {
-						ycalc[n] += (isNaN(chartdata[n].dataPoints[k].y) ? 0: chartdata[n].dataPoints[k].y);
+					for (var n=0; n < chartdata.length; n++){
+						if (chartdata[n].type === "scatter" ) {} else {
+							ycalc[n] += (isNaN(chartdata[n].dataPoints[k].y) ? 0: chartdata[n].dataPoints[k].y);
+						}
 					}
 				}
-
 			}
-		}
 
-		var averinfo = ""; //"Parameter  Average";
-		for (var n=0; n < chartdata.length; n++){
-			//console.log(chartdata[n].type);
-			if (chartdata[n].type === "scatter" ) {} else {
-				ycalc[n] = ycalc[n]/npts;
-				averinfo = averinfo + "<b>" + chartdata[n].name + "</b>: "+ ycalc[n].toFixed(2) + "<br/>";
+			var averinfo = ""; //"Parameter  Average";
+			for (var n=0; n < chartdata.length; n++){
+				//console.log(chartdata[n].type);
+				if (chartdata[n].type === "scatter" ) {} else {
+					ycalc[n] = ycalc[n]/npts;
+					averinfo = averinfo + "<b>" + chartdata[n].name + "</b>: "+ ycalc[n].toFixed(2) + "<br/>";
+				}
 			}
+			//console.log(averinfo);
+			//console.log(npts);
+			//console.log(ycalc);
+			//alert(averinfo);
+			mapSegmentInfo = L.popup({autoClose: true}).setLatLng(mapSegment.getCenter())
+				.setContent(averinfo).openOn(mymap);
+		} else if (e.trigger === "reset") { 
+			if (withGPS) mapSegment.setLatLngs( [[]] );
 		}
-		//console.log(averinfo);
-		//console.log(npts);
-		//console.log(ycalc);
-		//alert(averinfo);
-		mapSegmentInfo = L.popup({autoClose: true}).setLatLng(mapSegment.getCenter())
-			.setContent(averinfo).openOn(mymap);
-	} else if (e.trigger === "reset") { 
-		if (withGPS) mapSegment.setLatLngs( [[]] );
 	}
 }
 
@@ -253,17 +250,13 @@ function toggleDataSeries(e) {
 	e.chart.render();
 }
 
-//var file = {};
 
 fileInput.onchange = function (e) {
 	var file = this.files[0];
 	fReader.readAsArrayBuffer(file);
 }
 
-
-import {
-	default as FitParser
-} from './fit-parser.cjs';
+import {default as FitParser} from './fit-parser.cjs';
 
 var fitParser = new FitParser({
 	force: true,
@@ -302,7 +295,7 @@ fReader.onload = function (e) {
 	var ylist=[];
 	fitParser.parse(e.target.result, function (error, data) {
 		if (error) {
-			//console.log(error);
+			console.log(error);
 		} else {
 			//console.log(data);
 			//console.log(data.laps);
@@ -329,26 +322,27 @@ fReader.onload = function (e) {
 
 			fitdata = data;
 			
-			chartdata = chartdata || [];
-			if(chartdata.length == 0) {
-				// fill drop list options
-				document.getElementById('xaxis').options.length = 0;
-				document.getElementById('ylist').options.length = 0;
-				for (let row of data.records) {
-					for (let [key, value] of Object.entries(row)) {
-						if (!ylist.includes(key)) {
-							ylist.push(key);
-							if (key === "distance" || key === "timestamp") {
-								document.getElementById('xaxis').options.add(new Option(key, key))
-							} else {
-								document.getElementById('ylist').options.add(new Option(key, key))
+			//var l=document.getElementById('xaxis').options = chartdata || [];
+			if(document.getElementById('xaxis').options.length == 0) {
+				for (var [ykey,yrecords] of Object.entries({distance: "records", timestamp: "records", lap_number: "laps"})) {
+					//console.log(ykey);
+					//console.log(yrecords);
+					document.getElementById('xaxis').options.add( new Option(ykey, ykey) );
+					for (var datarow of data[yrecords]) {
+						for (var [key, value] of Object.entries(datarow)) {
+							yOptions[ykey] = yOptions[ykey] || [];
+							if (!yOptions[ykey].includes(key) && !["timestamp","distance"].includes(key) ) {
+								yOptions[ykey].push(key);
 							}
 						}
 					}
 				}
+			
+				
 				// set default xaxis as "distance"
 				document.getElementById('xaxis').value = "distance";
-				document.getElementById('xaxis').dispatchEvent(new Event('change'));
+				// set ylistOptions for xaxis = distance
+				document.getElementById('xaxis').dispatchEvent(new Event('change'));				
 				// make few  plots 
 				var yaxisshow = ["heart_rate", "pace", "HRE", "speed", "position_lat", "position_long"], 
 				kstart=[0,3,4], kend=[3,4,6], done=false;	
@@ -366,34 +360,6 @@ fReader.onload = function (e) {
 			}
 		}
 	});
-	
-	//chartdata = chartdata || [];
-	//if(chartdata.length == 0) {
-	//	document.getElementById('xaxis').value = "distance";
-	//	document.getElementById('xaxis').dispatchEvent(new Event('change'));
-	//}
-
-	//document.getElementById('ylist').options.add(new Option("laps", "laps"))
-	//console.log(fitdata);
-
-
-	// show few y on the plot
-	//document.getElementById('ylist').value = "heart_rate";
-	//document.getElementById('ylist').dispatchEvent(new Event('change'));
-	
-
-	//if (document.getElementById('adddata').checked === true) {
-	//	document.getElementById('ylist').dispatchEvent(new Event('change'));
-	//}
-
-
-	//console.log(latt_aver);
-	//console.log(long_aver);
-	//console.log(track);
-
-	//for (i=0;i<track.length;i++) {
-	//	mymap.removeLayer(points[i]);
-	//}
 	
     // now work with leallet 
 	trackdata = [];
@@ -462,39 +428,6 @@ fReader.onload = function (e) {
 		mapSegment =  L.polyline(faketrack, { color: "red", weight: 5 }).addTo(mymap);
 	}
 
-	/*if ( ! mymap.hasLayer(mapSegmentInfo)) {
-		mapSegmentInfo =  L.popup({autoClose: false}).setLatLng(mapSegment.getCenter())
-			.setContent(averinfo).openOn(mymap);
-	} else {
-		mapSegmentInfo.bringToFront();	
-	}*/
-	
-	
-
-	/*Ltrack.on('mouseover', function(e) {
-		var layer = e.target;
-	
-		//layer.setStyle({
-		//	color: 'blue',
-		//	opacity: 1,
-		//	weight: 5
-		//});
-		var circle = L.circle( e.latlng, {
-			color: 'red',
-			fillColor: '#f03',
-			fillOpacity: 0.5,
-			radius: 5
-		}).addTo(mymap);
-	}); */
-
-
-	//L.marker( track[10],{ color: 'red' }).addTo( mymap );
-	/*var circle = L.circle( trackdata[10], {
-		color: 'red',
-		fillColor: '#f03',
-		fillOpacity: 0.5,
-		radius: 50
-	}).addTo(mymap);*/
 };
 
 document.getElementById('clean').onclick = function (e) {
