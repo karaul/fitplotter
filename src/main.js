@@ -114,6 +114,9 @@ document.getElementById('ylist').onchange = function (e) {
 		markerType = "triangle";
 		markerSize = 8;
 	}
+	if (xobj.value === "lap_number"){
+		chartdataType = "column";
+	}
 	//console.log(chartdataType);
 	chartdata = chartdata || [];
 	chartdata.push( {
