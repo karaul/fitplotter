@@ -2,7 +2,7 @@
 
 A simple one-page tool to plot parameters recorded in the \*.fit file used by Garmin and Suunto.
 
-![Alt text](https://github.com/karaul/fitplotter/blob/main/screenshot.JPG?raw=true)
+![Alt text](https://github.com/karaul/fitplotter/blob/main/screenshots/screenshot.JPG?raw=true)
 
 ## Motivation 
 
@@ -26,13 +26,13 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 - Download fitplotter.zip and unzip. 
 - Download http-server-static.zip and unzip next to the folder "fitplotter" created by unzipping fitplotter.zip.
 - Double click on fitplotter.bat to launch the program. If it  does not start, check paths inside fitplotter.bat.
-- Inside the programm, press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with \*.fit files located for the demonstration purpose in the folder "examples."
+- Inside the programm, press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with \*.fit files located for the demonstration purpose in the folder "examples"
 
 ##### Installation for non-programmers who found this program in github
 
 - download everything as zip file and unzip. 
 - Install [nodejs](https://nodejs.org/en/) in your system. 
-- Put in fitplotter.bat proper path into the installed node.exe.
+- Сheck in fitplotter.bat path into the installed node.exe.
 - Double click on fitplotter.bat
 
 ##### Installation for programmers who found it in github
