@@ -16,6 +16,34 @@ function randomColor(opacity) {
 	);
 }
 
+function automodePlot(yaxisshow) {
+	var yadded = [];  
+	if (document.getElementById('openmode').value === "automode") {
+		//console.log(chartdata.length);
+		var n = chartdata.length;
+		if (n > 0) {
+			for (var k=0; k < n; k++){
+				var y = chartdata[k].name.split(" ")[0];
+				//console.log(ycurrent);
+				if (yadded.includes(y)){} else{ yadded.push(y) }
+			}
+		}
+		if (n==0 || yadded.length == 0) {
+			//var yaxisshow = ["heart_rate", "pace", "HRE", "speed", "position_lat", "position_long"], 
+			var x = document.getElementById('xaxis').value;
+			for (var y of yaxisshow) {
+				if (yOptions[x].includes(y)) yadded.push(y);
+			}
+		}
+		for (var y of yadded) {
+			document.getElementById('ylist').value = y;
+			document.getElementById('ylist').dispatchEvent(new Event('change'));
+		}
+	}
+	return yadded.length;
+}
+
+
 function getDataFromFitForCanvasJS(fitdatalocal, fieldx, fieldy) {
 	var dataPoints = [];
 	if (fieldx === "timestamp" && fieldy.slice(0,3) === "lap" ){		
@@ -310,18 +338,27 @@ fReader.onload = function (e) {
 			}
             var D = new Date(data.records[0].timestamp);
 			var timeoffset =  D.getHours() + D.getMinutes()/60;
+			var paceFlag = false, hreFlag = false;
 			for (var k in data.records) {
 				var record = data.records[k];
 				D = new Date(record.timestamp);
 				data.records[k].timestamp =  D.getHours() + D.getMinutes()/60 - timeoffset;
 				data.records[k].distance =  record.distance/1000;
-				data.records[k].pace = (record.speed > 0 ? 60 / record.speed : NaN);
-				data.records[k].HRE = (record.speed > 0 ? record.heart_rate * 60 / record.speed : NaN);
+				paceFlag = paceFlag || ( "speed" in record && ! isNaN(record.speed) );
+				if( paceFlag )
+					data.records[k].pace = (record.speed > 0 ? 60 / record.speed : NaN);
+				hreFlag = hreFlag || ( paceFlag && "heart_rate" in record && ! isNaN(record.heart_rate) );
+				if( hreFlag )
+					data.records[k].HRE = (record.speed > 0 ? record.heart_rate * 60 / record.speed : NaN);
 			}
+			paceFlag = false;
 			for (var k in data.laps) {
-				D = new Date(data.laps[k].start_time);
+				var record = data.laps[k];
+				D = new Date(record.start_time);
 				data.laps[k].start_time = D.getHours() + D.getMinutes()/60 - timeoffset;
-				data.laps[k].avg_pace = (data.laps[k].avg_speed > 0 ? 60 / data.laps[k].avg_speed : NaN);
+				paceFlag = paceFlag || ( "avg_speed" in record && ! isNaN(record.avg_speed) );
+				if( paceFlag )
+					data.laps[k].avg_pace = (record.avg_speed > 0 ? 60 / record.avg_speed : NaN);
 			}
 
 			fitdata = data;
@@ -340,41 +377,17 @@ fReader.onload = function (e) {
 							}
 						}
 					}
+					// sort out
+					yOptions[ykey].sort();
 				}
 			
-				
 				// set default xaxis as "distance"
 				document.getElementById('xaxis').value = "distance";
 				// set ylistOptions for xaxis = distance
-				document.getElementById('xaxis').dispatchEvent(new Event('change'));				
-				// make few  plots 
-				var yaxisshow = ["heart_rate", "pace", "HRE", "speed", "position_lat", "position_long"], 
-					kstart=[0,3,4], kend=[3,4,6], done=false;	
-				for ( var kk=0; kk<kstart.length; kk++) {		
-					for (k=kstart[kk]; k < kend[kk]; k++) {
-						//console.log(yaxisshow[k]);
-						if (yOptions.distance.includes(yaxisshow[k])) {
-							done = true;
-							document.getElementById('ylist').value = yaxisshow[k];
-							document.getElementById('ylist').dispatchEvent(new Event('change'));
-						}
-					}
-					if (done == true) break;
-				}
-			} else {
-				//console.log(chartdata.length);
-				var n = chartdata.length;
-				var yadded=[];
-				for (var k=0; k < n; k++){
-					var ycurrent = chartdata[k].name.split(" ")[0];
-					//console.log(ycurrent);
-					if (yadded.includes(ycurrent)){} else{
-						yadded.push(ycurrent);						
-						document.getElementById('ylist').value = ycurrent;
-						document.getElementById('ylist').dispatchEvent(new Event('change'));
-					}
-				}
+				document.getElementById('xaxis').dispatchEvent(new Event('change'));	
 			}
+			
+			document.getElementById('update').dispatchEvent(new Event('click'));
 		}
 	});
 	
@@ -446,6 +459,15 @@ fReader.onload = function (e) {
 	}
 
 };
+
+
+document.getElementById('update').onclick = function (e) {
+	automodePlot( ["heart_rate", "pace", "HRE"] ) == 0 ? 
+		(automodePlot( ["speed"] ) == 0 ?  
+			(automodePlot( ["avg_pace", "avg_heart_rate"] ) == 0 ?
+				automodePlot( [ "altitude" ] ) : null ) : null) : null;
+
+}
 
 document.getElementById('clean').onclick = function (e) {
 

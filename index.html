@@ -33,12 +33,16 @@
 
 <body>
 		<input id="myfile" type="file" value='' style="padding: 0px; width:120px;" />
-		<!-- <p> <input id="addfile" type="file" value=''/> </p> -->
+		<select name="mode" id="openmode"> 
+			<option value="automode"> auto mode</option>
+			<option value="manualmode">manual add</option>
+		</select>
 		<label for="xaxis">x-axis:</label>
 		<select name="x" id="xaxis">
 		</select>
 		<label for="ylist">add to y-axis:</label>
 		<select name="y" id="ylist"></select>
+		<input id="update" type="button" value='Update plot'/> 
 		<input id="clean" type="button" value='Clean plot'/> 
 	<div class="container">
 		<div class="column1" id="plotarea" style="width:50%; height:600px; padding-left: 0pt; margin-bottom: 10px;"></div>
