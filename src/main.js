@@ -335,7 +335,8 @@ fReader.onload = function (e) {
 			}
             var D = new Date(data.records[0].timestamp);
 			var timeoffset =  D.getHours() + D.getMinutes()/60;
-			var paceFlag = false, hreFlag = false;
+			var paceFlag = false; 
+			var hreFlag = false;
 			for (var k in data.records) {
 				var record = data.records[k];
 				D = new Date(record.timestamp);
@@ -349,6 +350,7 @@ fReader.onload = function (e) {
 					data.records[k].HRE = (record.speed > 0 ? record.heart_rate * 60 / record.speed : NaN);
 			}
 			paceFlag = false;
+			hreFlag = false;
 			for (var k in data.laps) {
 				var record = data.laps[k];
 				D = new Date(record.start_time);
@@ -356,7 +358,10 @@ fReader.onload = function (e) {
 				paceFlag = paceFlag || ( "avg_speed" in record && ! isNaN(record.avg_speed) );
 				if( paceFlag )
 					data.laps[k].avg_pace = (record.avg_speed > 0 ? 60 / record.avg_speed : NaN);
-			}
+				hreFlag = hreFlag || ( paceFlag && "avg_heart_rate" in record && ! isNaN(record.avg_heart_rate) );
+				if( hreFlag )
+					data.laps[k].avg_HRE = (record.avg_speed > 0 ? record.avg_heart_rate * 60 / record.avg_speed : NaN);
+				}
 
 			fitdata = data;
 			
@@ -461,7 +466,7 @@ fReader.onload = function (e) {
 document.getElementById('update').onclick = function (e) {
 	automodePlot( ["heart_rate", "pace", "HRE"] ) == 0 ? 
 		(automodePlot( ["speed"] ) == 0 ?  
-			(automodePlot( ["avg_pace", "avg_heart_rate"] ) == 0 ?
+			(automodePlot( ["avg_pace", "avg_heart_rate", "avg_HRE"] ) == 0 ?
 				automodePlot( [ "altitude" ] ) : null ) : null) : null;
 
 }
