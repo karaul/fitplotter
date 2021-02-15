@@ -19,17 +19,13 @@ function randomColor(opacity) {
 function automodePlot(yaxisshow) {
 	var yadded = [];  
 	if (document.getElementById('openmode').value === "automode") {
-		//console.log(chartdata.length);
-		var n = chartdata.length;
-		if (n > 0) {
-			for (var k=0; k < n; k++){
-				var y = chartdata[k].name.split(" ")[0];
-				//console.log(ycurrent);
-				if (yadded.includes(y)){} else{ yadded.push(y) }
+		chartdata = chartdata || [];
+		if (chartdata.length > 0) {
+			for (var c of chartdata){
+				var y = c.name.split(" ")[0];
+				if (! yadded.includes(y) ) yadded.push(y);
 			}
-		}
-		if (n==0 || yadded.length == 0) {
-			//var yaxisshow = ["heart_rate", "pace", "HRE", "speed", "position_lat", "position_long"], 
+		} else {
 			var x = document.getElementById('xaxis').value;
 			for (var y of yaxisshow) {
 				if (yOptions[x].includes(y)) yadded.push(y);
@@ -88,6 +84,7 @@ document.getElementById('xaxis').onchange = function (e) {
 		document.getElementById("ylist").options.add( new Option( ylist[k], ylist[k] ) );
 	}
 	axisXops.title = xaxisLabel[xaxis];
+	document.getElementById('update').dispatchEvent(new Event('click'));
 }
 
 document.getElementById('ylist').onchange = function (e) {
@@ -385,9 +382,9 @@ fReader.onload = function (e) {
 				document.getElementById('xaxis').value = "distance";
 				// set ylistOptions for xaxis = distance
 				document.getElementById('xaxis').dispatchEvent(new Event('change'));	
+			} else {
+				document.getElementById('update').dispatchEvent(new Event('click'));
 			}
-			
-			document.getElementById('update').dispatchEvent(new Event('click'));
 		}
 	});
 	
