@@ -321,6 +321,7 @@ fReader.onload = function (e) {
 			for (var k in data.laps) {
 				D = new Date(data.laps[k].start_time);
 				data.laps[k].start_time = D.getHours() + D.getMinutes()/60 - timeoffset;
+				data.laps[k].avg_pace = (data.laps[k].avg_speed > 0 ? 60 / data.laps[k].avg_speed : NaN);
 			}
 
 			fitdata = data;
@@ -348,17 +349,30 @@ fReader.onload = function (e) {
 				document.getElementById('xaxis').dispatchEvent(new Event('change'));				
 				// make few  plots 
 				var yaxisshow = ["heart_rate", "pace", "HRE", "speed", "position_lat", "position_long"], 
-				kstart=[0,3,4], kend=[3,4,6], done=false;	
+					kstart=[0,3,4], kend=[3,4,6], done=false;	
 				for ( var kk=0; kk<kstart.length; kk++) {		
 					for (k=kstart[kk]; k < kend[kk]; k++) {
 						//console.log(yaxisshow[k]);
-						if (ylist.includes(yaxisshow[k])) {
+						if (yOptions.distance.includes(yaxisshow[k])) {
 							done = true;
 							document.getElementById('ylist').value = yaxisshow[k];
 							document.getElementById('ylist').dispatchEvent(new Event('change'));
 						}
 					}
 					if (done == true) break;
+				}
+			} else {
+				//console.log(chartdata.length);
+				var n = chartdata.length;
+				var yadded=[];
+				for (var k=0; k < n; k++){
+					var ycurrent = chartdata[k].name.split(" ")[0];
+					//console.log(ycurrent);
+					if (yadded.includes(ycurrent)){} else{
+						yadded.push(ycurrent);						
+						document.getElementById('ylist').value = ycurrent;
+						document.getElementById('ylist').dispatchEvent(new Event('change'));
+					}
 				}
 			}
 		}
@@ -437,6 +451,8 @@ document.getElementById('clean').onclick = function (e) {
 
 	// reset zoom
 	chart.options.axisX.viewportMinimum = chart.options.axisX.viewportMaximum = null;
+	// reset y-axis
+	document.getElementById('ylist').value = null;
 
 	for(var k = axisYops.length-1; k>=0; k--){ axisYops.pop()	}
 	for(var k = axisY2ops.length-1; k>=0; k--){ axisY2ops.pop()	}
