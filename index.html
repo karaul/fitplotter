@@ -48,7 +48,16 @@
 		<div class="column1" id="plotarea" style="width:50%; height:600px; padding-left: 0pt; margin-bottom: 10px;"></div>
 		<div class="column2" id="map" style="width:50%; height:600px; padding-right: 0pt; margin-bottom: 10px;"></div>
 	</div>
-	<p style="font-size: 10px; text-align:center;"> fitplotter &#169 karaul 2021 </p>
+	<p style="line-height: 60px;"> 
+		<label for="legendaction">Click on curve in the legend does:</label>
+		<select name="legendaction" id="legendaction">
+		  <option value="hide_show">Hide/Show curve</option>
+		  <option value="change_color">Change curve color</option>
+		  <option value="change_thickness">Change curve thickness</option>
+		  <option value="remove_curve">Remove curve</option>
+		</select>
+	</p>
+	<p style="font-size: 10px; text-align:center;"> fitplotter by karaul (2021) </p>
 </body>
 
 <script type="module" src="./src/main.js"></script> 
