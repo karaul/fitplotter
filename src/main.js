@@ -604,8 +604,8 @@ fReader.onload = function (e) {
 document.getElementById('update').onclick = function (e) {
 	automodePlot(["heart_rate", "pace", "HRE"]) == 0 ?
 		(automodePlot(["speed"]) == 0 ?
-			(automodePlot(["avg_pace", "avg_heart_rate", "avg_HRE"]) == 0 ?
-				(automodePlot(["total_elapsed_time"]) == 0 ?
+			(automodePlot(["total_elapsed_time"]) == 0 ?
+				(automodePlot(["avg_pace", "avg_heart_rate", "avg_HRE"]) == 0 ?				
 					automodePlot(["altitude"]) : null) : null) : null) : null;
 
 }
