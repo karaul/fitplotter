@@ -62,10 +62,10 @@ function getDataFromFitForCanvasJS(fitdatalocal, fieldx, fieldy) {
 			}
 		} else {
 			for (var k in fitdatalocal.records) {
-				dataPoints.push({
-					x: fitdatalocal.records[k][fieldx],
-					y: fitdatalocal.records[k][fieldy]
-				});
+				var x = fitdatalocal.records[k][fieldx];
+				if( isNaN(x) ) { } else {
+					dataPoints.push({ x: x, y: fitdatalocal.records[k][fieldy]} );
+				}
 			}
 		}
 	}
@@ -255,9 +255,13 @@ function updateMapSegment(e) {
 
 					npts++;
 
-					for (var n = 0; n < chartdata.length; n++) {
+					for (var n = 0; n < chartdata.length; n++) {						
 						if (chartdata[n].type === "scatter") {} else {
-							ycalc[n] += (isNaN(chartdata[n].dataPoints[k].y) ? 0 : chartdata[n].dataPoints[k].y);
+							if (k < chartdata[n].dataPoints.length) {
+								if ("y" in chartdata[n].dataPoints[k]) {
+									ycalc[n] += isNaN(chartdata[n].dataPoints[k].y)? 0 :chartdata[n].dataPoints[k].y;
+								}							
+							}
 						}
 					}
 				}
@@ -297,7 +301,8 @@ function updateMapPosition(e) {
 			if (record[xname] === xgiven) break
 		}
 		//console.log([ record["position_lat"], record["position_long"] ] );
-		mapPosition.setLatLng([record["position_lat"], record["position_long"]]);
+		if ( !( isNaN(record["position_lat"]) || isNaN(record["position_long"])) )
+			mapPosition.setLatLng([record["position_lat"], record["position_long"]]);
 	}
 }
 
@@ -437,7 +442,7 @@ var mapPosition = {},
 
 fReader.onload = function (e) {
 	//console.log(e.target.result); /// <-- this contains an ArrayBuffer
-	var ylist = [];
+	//var ylist = [];
 	fitParser.parse(e.target.result, function (error, data) {
 		if (error) {
 			console.log(error);
@@ -458,7 +463,7 @@ fReader.onload = function (e) {
 				var record = data.records[k];
 				D = new Date(record.timestamp);
 				data.records[k].timestamp = D.getHours() + D.getMinutes() / 60 - timeoffset;
-				data.records[k].distance = record.distance / 1000;
+				data.records[k].distance = isNaN(record.distance) ? NaN: record.distance/1000;
 				paceFlag = paceFlag || ("speed" in record && !isNaN(record.speed));
 				if (paceFlag)
 					data.records[k].pace = (record.speed > 0 ? 60 / record.speed : NaN);
@@ -495,7 +500,7 @@ fReader.onload = function (e) {
 					for (var datarow of data[yrecords]) {
 						for (var [key, value] of Object.entries(datarow)) {
 							yOptions[ykey] = yOptions[ykey] || [];
-							if (!yOptions[ykey].includes(key) && !["timestamp", "distance"].includes(key)) {
+							if ( !(yOptions[ykey].includes(key) || ykey === key) ) {
 								yOptions[ykey].push(key);
 							}
 						}
@@ -600,7 +605,8 @@ document.getElementById('update').onclick = function (e) {
 	automodePlot(["heart_rate", "pace", "HRE"]) == 0 ?
 		(automodePlot(["speed"]) == 0 ?
 			(automodePlot(["avg_pace", "avg_heart_rate", "avg_HRE"]) == 0 ?
-				automodePlot(["altitude"]) : null) : null) : null;
+				(automodePlot(["total_elapsed_time"]) == 0 ?
+					automodePlot(["altitude"]) : null) : null) : null) : null;
 
 }
 
