@@ -230,6 +230,28 @@ var chart = new CanvasJS.Chart("plotarea", {
 	data: chartdata
 });
 
+var activeLine;
+var modal = document.getElementById("myModal");
+
+document.getElementById("lineThickness").onchange = function(){
+	chart.data[activeLine].set("lineThickness", this.value);
+}
+
+document.getElementById("lineColοr").oninput = function(){
+	chart.data[activeLine].set("color", this.value);
+}
+
+window.onclick = function(event) {
+	if (event.target == modal) {
+		modal.style.display = "none";
+	}
+}
+
+var span = document.getElementsByClassName("close")[0].onclick = function() {
+	modal.style.display = "none";
+}
+
+
 function updateMapSegment(e) {
 	//console.log(document.getElementById('xaxis').value);
 	if (document.getElementById('xaxis').value === "lap_number") {} else {
@@ -331,6 +353,27 @@ function toggleDataSeries(e) {
 			}
 			break;
 
+		case "change":
+			for (var k in chart.data) {
+				var c = chart.data[k];
+				if (c.name == e.dataSeries.name) {
+					activeLine = k;
+					modal.style.display = "block";
+					document.getElementById('lineThickness').value = c.get("lineThickness");
+					document.getElementById('lineColοr').value = c.get("color");
+					break;
+				}
+			}
+			break;
+	
+		case "change_thickness":
+			for (var c of chart.data) {
+				if (c.name == e.dataSeries.name) {
+					e.dataSeries.lineThickness = parseFloat(prompt("Line thickness, min 0.5, max 12:", c.get("lineThickness").toString()));
+					break;
+				}
+			}
+			break;
 		case "change_thickness":
 			for (var c of chart.data) {
 				if (c.name == e.dataSeries.name) {
