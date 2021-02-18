@@ -507,12 +507,15 @@ fReader.onload = function (e) {
 				D = new Date(record.timestamp);
 				data.records[k].timestamp = D.getHours() + D.getMinutes() / 60 - timeoffset;
 				data.records[k].distance = isNaN(record.distance) ? NaN: record.distance/1000;
-				paceFlag = paceFlag || ("speed" in record && !isNaN(record.speed));
-				if (paceFlag)
-					data.records[k].pace = (record.speed > 0 ? 60 / record.speed : NaN);
-				hreFlag = hreFlag || (paceFlag && "heart_rate" in record && !isNaN(record.heart_rate));
-				if (hreFlag)
-					data.records[k].HRE = (record.speed > 0 ? record.heart_rate * 60 / record.speed : NaN);
+				paceFlag = paceFlag || ("speed" in record && !isNaN(record.speed)) 
+									|| ("enhanced_speed" in record && !isNaN(record.enhanced_speed));
+				if (paceFlag) {
+					var speed = ("speed" in record && !isNaN(record.speed)) ? record.speed : record.enhanced_speed;
+					data.records[k].pace = (speed > 0 ? 60 / speed : NaN);
+					hreFlag = hreFlag || (paceFlag && "heart_rate" in record && !isNaN(record.heart_rate));
+					if (hreFlag)
+						data.records[k].HRE = (speed > 0 ? record.heart_rate *  60 / speed : NaN);
+				}
 			}
 			paceFlag = false;
 			hreFlag = false;
@@ -520,12 +523,15 @@ fReader.onload = function (e) {
 				var record = data.laps[k];
 				D = new Date(record.start_time);
 				data.laps[k].start_time = D.getHours() + D.getMinutes() / 60 - timeoffset;
-				paceFlag = paceFlag || ("avg_speed" in record && !isNaN(record.avg_speed));
-				if (paceFlag)
-					data.laps[k].avg_pace = (record.avg_speed > 0 ? 60 / record.avg_speed : NaN);
-				hreFlag = hreFlag || (paceFlag && "avg_heart_rate" in record && !isNaN(record.avg_heart_rate));
-				if (hreFlag)
-					data.laps[k].avg_HRE = (record.avg_speed > 0 ? record.avg_heart_rate * 60 / record.avg_speed : NaN);
+				paceFlag = paceFlag || ("avg_speed" in record && !isNaN(record.avg_speed))
+									|| ("enhanced_avg_speed" in record && !isNaN(record.enhanced_avg_speed));
+				if (paceFlag) {
+					var speed = ("avg_speed" in record && !isNaN(record.avg_speed)) ? record.avg_speed : record.enhanced_avg_speed;
+					data.laps[k].avg_pace = (speed > 0 ? 60 / speed : NaN);
+					hreFlag = hreFlag || (paceFlag && "avg_heart_rate" in record && !isNaN(record.avg_heart_rate));
+					if (hreFlag)
+						data.laps[k].avg_HRE = (speed > 0 ? record.avg_heart_rate * 60 / speed : NaN);
+				}
 			}
 
 			fitdata = data;
@@ -647,7 +653,7 @@ fReader.onload = function (e) {
 document.getElementById('update').onclick = function (e) {
 	automodePlot(["heart_rate", "pace", "HRE"]) == 0 ?
 		(automodePlot(["speed"]) == 0 ?
-			(automodePlot(["total_elapsed_time"]) == 0 ?
+			(automodePlot(["total_elapsed_time", "avg_heart_rate", "avg_HRE"]) == 0 ?
 				(automodePlot(["avg_pace", "avg_heart_rate", "avg_HRE"]) == 0 ?				
 					automodePlot(["altitude"]) : null) : null) : null) : null;
 
