@@ -21,48 +21,32 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 
 ## Installation
 
-##### Installation for non-programmers who have a trusted link to  \*.zip files (to avoid malware the link must be obtained from me personally by email).
-
-- Download fitplotter.zip and unzip. 
-- Download http-server-static.zip and unzip next to the folder "fitplotter" created by unzipping fitplotter.zip.
-- Double click on fitplotter.bat to launch the program. If it  does not start, check paths inside fitplotter.bat.
-
 
 ##### Installation for non-programmers who found this program in github
 
-- download everything as zip file and unzip. 
-- Install [nodejs](https://nodejs.org/en/) in your system. 
-- Сheck in fitplotter.bat path into the installed node.exe.
-- Double click on fitplotter.bat
+- click on the green button and download everything as zip file
+- unzip 
+- Double click on index.html
 
 ##### Installation for programmers who found it in github
 ```
 github clone https://github.com/karaul/fitplotter 
-node .
 ```
-
-##### Installation if you have own http-server 
-
-Download only index.html and ./src/\* and then open index.html inside your http-server.
 
 ## Usage
 
 Press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with \*.fit files located for the demonstration purpose in the folder "examples".
 
-If everything works fine, after you open the *.fit file, you will see a graph on the left and map on the right. Few screenshots are in the folder "screenshots". Play with droplists: x-axis, y-axis, automode/manual add. Zoom area in the left graph and then see the averaged over the zoomed area on the right map. Click on the legend with different choice in the bottom droplist.
+If everything works fine, after you open the \*.fit file, you will see a graph on the left and map on the right. Few screenshots are in the folder "screenshots". Play with droplists: x-axis, y-axis, automode/manual add. Zoom area in the left graph and then see the averaged over the zoomed area on the right map. Click on the legend with different choice in the bottom droplist.
 
 
-## How it works
-
-fitplotter needs an http-server to read local files. It has the own simple server, http-server-static.js, working with node.exe, the latter has to be installed in your system from [nodejs](https://nodejs.org/en/). Actually, the file node.exe is needed only. 
-
-[Good explanation](https://threejs.org/docs/#manual/en/introduction/How-to-run-things-locally) why http-server is needed and how to get it working
 
 ## Contributors
 
-[fit-file-parser](https://github.com/jimmykane/fit-parser) by Dimitrios Kanellopoulos was taken and modified to get it working with HTML5.
+[fit-file-parser](https://github.com/jimmykane/fit-parser) by Dimitrios Kanellopoulos. The first vest was taken and modified to get it working with HTML5 but with hhtp static server.
+[backfit](https://github.com/jimmykane/fit-parser) by Gordon Moore who demonstrated who to work without a server
 
-Many thanks are to CanvasJS and Leaflet libraries for smooth work of the application.
+Thanks are to CanvasJS and Leaflet libraries for smooth work of the application.
 
 ## License
 
