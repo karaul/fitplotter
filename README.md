@@ -43,7 +43,7 @@ If everything works fine, after you open the \*.fit file, you will see a graph o
 
 ## Contributors
 
-[fit-file-parser](https://github.com/jimmykane/fit-parser) by Dimitrios Kanellopoulos. The first vest was taken and modified to get it working with HTML5 but with hhtp static server.
+[fit-file-parser](https://github.com/jimmykane/fit-parser) by Dimitrios Kanellopoulos. This  was taken and modified to get it working with HTML5 but with http static server.
 
 [backfit](https://github.com/jimmykane/fit-parser) by Gordon Moore who demonstrated how to work without a server
 
