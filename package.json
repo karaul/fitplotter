@@ -2,14 +2,13 @@
   "author": {
     "name": "Evgeny Votyaκοv"
   },
-  "description": "Parse and plot Garmin .fit file",
+  "description": "Plot Garmin and Suunto .fit file",
   "license": "MIT",
-  "main": "http-server-static.js",
+  "main": "index.html",
   "name": "fitplotter",
   "scripts": {},
-  "version": "0.0.2",
-  "dependencies": {
-    "open": "^7.4.0",
-    "portscanner": "^2.2.0"
+  "version": "0.5.0",
+  "dependencies": {    
+    
   }
 }
