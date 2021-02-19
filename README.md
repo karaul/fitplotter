@@ -26,7 +26,7 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 - Download fitplotter.zip and unzip. 
 - Download http-server-static.zip and unzip next to the folder "fitplotter" created by unzipping fitplotter.zip.
 - Double click on fitplotter.bat to launch the program. If it  does not start, check paths inside fitplotter.bat.
-- Inside the programm, press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with \*.fit files located for the demonstration purpose in the folder "examples"
+
 
 ##### Installation for non-programmers who found this program in github
 
@@ -45,11 +45,16 @@ node .
 
 Download only index.html and ./src/\* and then open index.html inside your http-server.
 
+## Usage
+
+Press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with \*.fit files located for the demonstration purpose in the folder "examples"
+
+If everything works fine, after you open the *.fit file, you will a graph on the left and map on the right. Few screenshots are in the folder screenshots. Play with droplist x-axis, y-axis, automode/manual add. Zoom area in the lefft graph adn see averaged on the right map. Click on the legend with different choice in the bottom droplist.
+
+
 ## How it works
 
-fitplotter needs an http-server to read local files. It has the own simple server working with node.exe located in the folder http-server-static. If you know what is the http-server and also have it installed and you want to use the own one, you can do it. Otherwise, double click on the file fitplotter.bat in order to launch http-server-static.js by means of \_node.exe located in http-server-static folder and then a new window in your browser will be opened with the start page of the program.
-
-File \_node.exe located in the folder http-server-static. This is the most heavy file of the installation (23mb zipped).
+fitplotter needs an http-server to read local files. It has the own simple server, http-server-static.js, working with node.exe, the latter has to be installed in your system from [nodejs](https://nodejs.org/en/). Actually, the file node.exe is needed only. 
 
 [Good explanation](https://threejs.org/docs/#manual/en/introduction/How-to-run-things-locally) why http-server is needed and how to get it working
 
