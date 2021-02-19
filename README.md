@@ -47,9 +47,9 @@ Download only index.html and ./src/\* and then open index.html inside your http-
 
 ## Usage
 
-Press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with \*.fit files located for the demonstration purpose in the folder "examples"
+Press button "Choose file" and select a \*.fit file to analyse. In the Garmin unit,  \*.fit files are in the folder "activities", which can be seen when you connect Garmin  with PC via USB. Or you can download your fit files from Garmin Connect. Also, you can play with \*.fit files located for the demonstration purpose in the folder "examples".
 
-If everything works fine, after you open the *.fit file, you will a graph on the left and map on the right. Few screenshots are in the folder screenshots. Play with droplist x-axis, y-axis, automode/manual add. Zoom area in the lefft graph adn see averaged on the right map. Click on the legend with different choice in the bottom droplist.
+If everything works fine, after you open the *.fit file, you will see a graph on the left and map on the right. Few screenshots are in the folder "screenshots". Play with droplists: x-axis, y-axis, automode/manual add. Zoom area in the left graph and then see the averaged over the zoomed area on the right map. Click on the legend with different choice in the bottom droplist.
 
 
 ## How it works
