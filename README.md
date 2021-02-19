@@ -45,7 +45,7 @@ If everything works fine, after you open the \*.fit file, you will see a graph o
 
 [fit-file-parser](https://github.com/jimmykane/fit-parser) by Dimitrios Kanellopoulos. This  was taken and modified to get it working with HTML5 but with http static server.
 
-[backfit](https://github.com/jimmykane/fit-parser) by Gordon Moore who demonstrated how to work without a server
+[BackFitClientSide](https://github.com/gfmoore/BackFitClientSide) by Gordon Moore who demonstrated how to work without a server
 
 Thanks are to CanvasJS and Leaflet libraries for smooth work of the application.
 
