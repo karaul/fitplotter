@@ -2,7 +2,7 @@
   "author": {
     "name": "Evgeny Votyaκοv"
   },
-  "description": "Plot Garmin and Suunto .fit file",
+  "description": "Plot Garmin and Suuntogit commit  .fit file",
   "license": "MIT",
   "main": "index.html",
   "name": "fitplotter",

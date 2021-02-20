@@ -1,6 +1,16 @@
 'use strict';
+
+// Add an event listener of DOMContentLoaded to the whole document and call an anonymous function.
+// You can then wrap your code in that function's brackets
+// and it will execute once loading is complete.
+
+document.addEventListener('DOMContentLoaded', function () {
+
+//    console.log('Aloha');
+
+
 // window.onload = 
-(window.onload = function () {
+//(window.onload = function () {
 
 			var fReader = new FileReader();
 			//var fileInput = document.getElementById('myfile');
@@ -734,4 +744,6 @@
 
 
 		}
-)();
+//)();
+
+);
