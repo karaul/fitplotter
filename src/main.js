@@ -147,13 +147,13 @@ document.addEventListener('DOMContentLoaded', function () {
 				if (axisYType === "undefined") {
 					switch (yobj.value) {
 						case "heart_rate" || "lap_avg_heart_rate":
-							color = "red";
+							color = "#ff0000";
 							break;
-						case "pace":
-							color = "blue" || "lap_time";
+						case "pace" || "lap_time":
+							color = "#0000ff";
 							break;
 						case "HRE":
-							color = "green";
+							color = "#00ff00";
 							break;
 						default:
 					}
@@ -397,31 +397,40 @@ document.addEventListener('DOMContentLoaded', function () {
 							if (c.name == e.dataSeries.name) {
 								activeLine = k;
 								modal.style.display = "block";
-								document.getElementById('lineThickness').value = c.get("lineThickness");
-								document.getElementById('lineColοr').value = c.get("color");
+								var color = c.get("color"), hexcolor;
+								if (color[0] == "#") {
+									hexcolor = color;
+								} else {
+									const rgba = color.replace(/^rgba?\(|\s+|\)$/g, '').split(',');
+									hexcolor = `#${((1 << 24) + (parseInt(rgba[0]) << 16) + (parseInt(rgba[1]) << 8) + parseInt(rgba[2])).toString(16).slice(1)}`;
+
+								}	
+								//console.log(hexcolor);						
+								document.getElementById("lineColοr").value = hexcolor;
+								document.getElementById("lineThickness").value = c.get("lineThickness");
 								break;
 							}
 						}
 						break;
 
-					case "change_thickness":
+					/*case "change_thickness":
 						for (var c of chart.data) {
 							if (c.name == e.dataSeries.name) {
 								e.dataSeries.lineThickness = parseFloat(prompt("Line thickness, min 0.5, max 12:", c.get("lineThickness").toString()));
 								break;
 							}
 						}
-						break;
-					case "change_thickness":
+						break;*/
+					/*case "change_thickness":
 						for (var c of chart.data) {
 							if (c.name == e.dataSeries.name) {
 								e.dataSeries.lineThickness = parseFloat(prompt("Line thickness, min 0.5, max 12:", c.get("lineThickness").toString()));
 								break;
 							}
 						}
-						break;
+						break;*/
 
-					case "change_color":
+					/*case "change_color":
 						for (var c of chart.data) {
 							if (c.name == e.dataSeries.name) {
 								var t = prompt("Line color, HEX or word: r(red), g(green), b(blue), " +
@@ -462,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function () {
 								break;
 							}
 						}
-						break;
+						break;*/
 					case "remove_curve":
 						for (var c of chart.data) {
 							if (c.name == e.dataSeries.name) {
@@ -700,6 +709,14 @@ document.addEventListener('DOMContentLoaded', function () {
 								automodePlot(["altitude"]) : null) : null) : null) : null;
 
 			}
+
+			document.getElementById('zoom').onchange = function (e) {
+				chart.set("zoomType", document.getElementById('zoom').value);
+			}
+
+			//document.getElementById("enableZoom").addEventListener("click",function(){
+			//	chart.set("zoomEnabled", true, false);								
+			//});
 
 			document.getElementById('clean').onclick = function (e) {
 
