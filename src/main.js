@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 //    console.log('Aloha');
 
-
+ 
 // window.onload = 
 //(window.onload = function () {
 
@@ -165,7 +165,11 @@ document.addEventListener('DOMContentLoaded', function () {
 							autoCalculate: true,
 							labelFontSize: 15,
 							titleFontSize: 15,
-							gridThickness: 0.15
+							gridThickness: 0.15,
+							crosshair: {
+								enabled: false,
+								snapToDataPoint: true
+							}
 						});
 						axisYIndex = axisYops.length - 1;
 					} else {
@@ -295,7 +299,9 @@ document.addEventListener('DOMContentLoaded', function () {
 				if (document.getElementById('xaxis').value === "lap_number") {} else {
 					if (e.trigger === "zoom") {
 						var xMin = e.axisX[0].viewportMinimum;
-						var xMax = e.axisX[0].viewportMaximum;
+						xMin = (xMin == null) ? chart.axisX[0].get("minimum"): xMin;
+						var xMax = e.axisX[0].viewportMaximum || e.axisX[0].maximum;
+						xMax = (xMax == null) ? chart.axisX[0].get("maximum"): xMax;
 						var xname = document.getElementById('xaxis').value;
 						var ycalc = Array(chartdata.length).fill(0),
 							npts = 0;
@@ -537,6 +543,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			fReader.onload = function (e) {
 				//console.log(e.target.result); /// <-- this contains an ArrayBuffer
 				//var ylist = [];
+				var timeStartFitParsing = performance.now();
+				
 				fitParser.parse(e.target.result, function (error, data) {
 					if (error) {
 						console.log(error);
@@ -618,6 +626,11 @@ document.addEventListener('DOMContentLoaded', function () {
 						}
 					}
 				});
+
+				var timeEndFitParsing = performance.now();
+				console.log('fit file parsing takes: ' + parseFloat(timeEndFitParsing-timeStartFitParsing) + ' ms');
+				//console.log( timeEndFitParsing - timeStartFitParsing );
+
 
 				// now work with leallet 
 				trackdata = [];
@@ -711,7 +724,13 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 
 			document.getElementById('zoom').onchange = function (e) {
-				chart.set("zoomType", document.getElementById('zoom').value);
+				var zoom = document.getElementById('zoom').value;
+				chart.axisX[0].crosshair.set("enabled", zoom.indexOf("x") >=0 );
+				for (var k=0; k < chart.axisY.length; k++) {
+					chart.axisY[k].crosshair.set("enabled",  zoom.indexOf("y") >=0 );
+				}
+				//chart.set("zoomType", document.getElementById('zoom').value);
+				chart.set("zoomType", zoom);
 			}
 
 			//document.getElementById("enableZoom").addEventListener("click",function(){
