@@ -2,6 +2,8 @@
 
 A simple one-page tool to plot parameters recorded in the \*.fit file used by Garmin and Suunto.
 
+online [demo](https://karaul.github.io/fitplotter). If you have no own fit files at the moment, you can download them from [examples](https://github.com/karaul/fitplotter/blob/main/examples/) 
+
 ![Alt text](https://github.com/karaul/fitplotter/blob/main/screenshots/screenshot.JPG?raw=true)
 
 ## Motivation 
@@ -46,6 +48,8 @@ If everything works fine, after you open the \*.fit file, you will see a graph o
 [fit-file-parser](https://github.com/jimmykane/fit-parser) by Dimitrios Kanellopoulos. This  was taken and modified to get it working with HTML5 but with http static server.
 
 [BackFitClientSide](https://github.com/gfmoore/BackFitClientSide) by Gordon Moore who demonstrated how to work without a server
+
+[Sarah Lucke](https://github.com/SarahLucke) who explained me how to make an online fitplotter version based on the github repository
 
 Thanks are to CanvasJS and Leaflet libraries for smooth work of the application.
 
