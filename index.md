@@ -67,21 +67,21 @@
 </head>
 
 <body>
-		<input id="myfile" type="file" value='' style="padding: 0px; width:120px;" />
-
+		<input id="myfile" type="file" value="" accept=".fit" 
+			style="padding: 0px; width:24mm; background: #ddd; size: 1"/>
+		&nbsp &nbsp 
 		<select name="mode" id="openmode"> 
 			<option value="automode"> auto mode</option>
 			<option value="manualmode">manual add</option>
 		</select>
-
-
+		&nbsp  &nbsp 
 		<label for="xaxis">x-axis:</label>
-		<select name="x" id="xaxis">
+		<select name="x" id="xaxis" style="min-width: 80px">
 		</select>
-
-		<label for="ylist">add to y-axis:</label>
-		<select name="y" id="ylist"></select>
-		
+		&nbsp  &nbsp 
+		<label for="ylist">y-axis:</label>
+		<select name="y" id="ylist" style="min-width: 80px"></select>
+		&nbsp  &nbsp 
 		<input id="update" type="button" value='Update plot'/> 
 		
 		<input id="clean" type="button" value='Clean plot'/> 
