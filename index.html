@@ -127,14 +127,22 @@
 			<option value="y">y-axis</option>
 		</select>
 		<!-- input id="saveRange" type="button" value='Save range'/> -->
-
-
-		<label for="legendaction">&nbsp &nbsp Click on curve in the legend:</label>
+		&nbsp  &nbsp 
+		<label for="legendaction">&nbsp &nbsp Click in the legend:</label>
 		<select name="legendaction" id="legendaction">
 		  <option value="hide_show">Hide/Show curve</option>
 		  <option value="change">Thickness/color</option>
 		  <option value="remove_curve">Remove curve</option>
+		  <option value="filter_curve">Apply filter to curve</option>
 		</select>
+		&nbsp  &nbsp 
+		<label for="medfil1bin">Filter:</label> 
+		<select name="mfs" id="medfil1bin">
+			<option selected>0</option> 
+			<option >1</option>
+			<option >3</option>
+			<option >5</option>
+		</select>			
 	</p>
 	<p style="font-size: 10px; text-align:center;"> fitplotter (c) karaul (2021) </p>
 

@@ -8,9 +8,75 @@ document.addEventListener('DOMContentLoaded', function () {
 
 //    console.log('Aloha');
 
- 
-// window.onload = 
-//(window.onload = function () {
+const swap = (arr, x, y) => [arr[x], arr[y]] = [arr[y], arr[x]];
+const calcMiddle = (x, y) => ~~((x + y) / 2);
+
+
+function median(arr) {
+	let low = 0;
+	let high = arr.length - 1;
+	let middle, ll, hh;
+	let median = calcMiddle(low, high);
+
+	while (true) {
+		if (high <= low) {// One element only
+			return arr[median];
+		}
+
+		if (high == low + 1) { // Two elements only
+			if (arr[low] > arr[high])
+				swap(arr, low, high);
+			return arr[median];
+		}
+
+		// Find median of low, middle and high items; swap into position low
+		middle = calcMiddle(low, high);
+		if (arr[middle] > arr[high]) swap(arr, middle, high);
+		if (arr[low] > arr[high]) swap(arr, low, high);
+		if (arr[middle] > arr[low]) swap(arr, middle, low);
+
+		// Swap low item (now in position middle) into position (low+1)
+		swap(arr, middle, low + 1);
+
+		// Nibble from each end towards middle, swapping items when stuck
+		ll = low + 1;
+		hh = high;
+		while (true) {
+			do ll++; while (arr[low] > arr[ll]);
+			do hh--; while (arr[hh] > arr[low]);
+
+			if (hh < ll)
+				break;
+
+			swap(arr, ll, hh);
+		}
+
+		// Swap middle item (in position low) back into correct position
+		swap(arr, low, hh);
+
+		// Re-set active partition
+		if (hh <= median)
+			low = ll;
+		if (hh >= median)
+			high = hh - 1;
+	}
+}
+
+
+function medfilter(a, bin) {
+	var bin2p1 = 1 + 2 * bin,
+		n = a.length;
+	var dm = Array(1 + 2 * bin).fill(a[0]);
+	var af = [];
+	for (var i = 0; i < n; i++) {
+		for (var k = 0; k < bin2p1; k++) {
+			var ipk = i + k - bin;
+			dm[k] = (ipk >= 0 ? (ipk < n ? a[ipk] : a[n - 1]) : a[0]);
+		}
+		af.push(median(dm));
+	}
+	return af;
+}
 
 			var fReader = new FileReader();
 			//var fileInput = document.getElementById('myfile');
@@ -485,6 +551,28 @@ document.addEventListener('DOMContentLoaded', function () {
 								break;
 							}
 						}
+						break;
+					case "filter_curve":
+						var medfil1bin = document.getElementById('medfil1bin').value, yold;
+						for (var k in chart.data) {
+							var c = chart.data[k];							
+							if (c.name == e.dataSeries.name) {
+								activeLine = k;								
+								yold = c.name;
+								break;
+							}
+						}
+						var xy = chart.data[activeLine].get("dataPoints");
+						var y = [];
+						for (var i=0; i < xy.length; i++) { y.push(xy[i].y) }
+						var yfiltered = medfilter(y, medfil1bin);
+						for (var i=0; i < xy.length; i++) { xy[i].y = yfiltered[i] }
+						chart.data[activeLine].set("dataPoints", xy);	
+						chart.data[activeLine].set("name", yold + " filter " + medfil1bin);	
+						document.getElementById('ylist').value = yold.split(" ")[0];
+						document.getElementById('ylist').dispatchEvent(new Event('change'));
+						document.getElementById('medfil1bin').value = 0;				
+						document.getElementById('legendaction').value = "hide_show";
 						break;
 					default:
 				}
