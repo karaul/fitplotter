@@ -62,11 +62,24 @@ function median(arr) {
 	}
 }
 
+function averfilter(a, bin) {
+	var bin2p1 = 1 + 2 * bin, n = a.length;
+	var af = [];
+	for (var i = 0; i < n; i++) {
+		var s = 0;
+		for (var k = 0; k < bin2p1; k++) {
+			var ipk = i + k - bin;
+			s += ipk >=0 ? (ipk < n ? a[ipk]: a[n-1]): a[0];
+		}
+		af.push(s/bin2p1);
+	}
+	return af;
+}
+
 
 function medfilter(a, bin) {
-	var bin2p1 = 1 + 2 * bin,
-		n = a.length;
-	var dm = Array(1 + 2 * bin).fill(a[0]);
+	var bin2p1 = 1 + 2 * bin, n = a.length;
+	var dm = Array(bin2p1).fill(a[0]);
 	var af = [];
 	for (var i = 0; i < n; i++) {
 		for (var k = 0; k < bin2p1; k++) {
@@ -553,7 +566,9 @@ function medfilter(a, bin) {
 						}
 						break;
 					case "filter_curve":
-						var medfil1bin = document.getElementById('medfil1bin').value, yold;
+						var medfil1bin = document.getElementById('medfil1bin').value;
+						var averfil1bin = document.getElementById('averfil1bin').value;
+						var yold;
 						for (var k in chart.data) {
 							var c = chart.data[k];							
 							if (c.name == e.dataSeries.name) {
@@ -566,12 +581,18 @@ function medfilter(a, bin) {
 						var y = [];
 						for (var i=0; i < xy.length; i++) { y.push(xy[i].y) }
 						var yfiltered = medfilter(y, medfil1bin);
-						for (var i=0; i < xy.length; i++) { xy[i].y = yfiltered[i] }
+						var yfiltered2 = averfilter(yfiltered, averfil1bin);
+						for (var i=0; i < xy.length; i++) { xy[i].y = yfiltered2[i] }
+
 						chart.data[activeLine].set("dataPoints", xy);	
-						chart.data[activeLine].set("name", yold + " filter " + medfil1bin);	
+						chart.data[activeLine].set("lineThickness", 2);
+						chart.data[activeLine].set("name", yold + " filter " + medfil1bin + "/" + averfil1bin);
+						
 						document.getElementById('ylist').value = yold.split(" ")[0];
 						document.getElementById('ylist').dispatchEvent(new Event('change'));
+						
 						document.getElementById('medfil1bin').value = 0;				
+						document.getElementById('averfil1bin').value = 0;				
 						document.getElementById('legendaction').value = "hide_show";
 						break;
 					default:

@@ -136,13 +136,10 @@
 		  <option value="filter_curve">Apply filter to curve</option>
 		</select>
 		&nbsp  &nbsp 
-		<label for="medfil1bin">Filter:</label> 
-		<select name="mfs" id="medfil1bin">
-			<option selected>0</option> 
-			<option >1</option>
-			<option >3</option>
-			<option >5</option>
-		</select>			
+		<label for="medfil1bin">Median filter size: </label> 
+		<input type="number" id="medfil1bin" name="mfs" min="0" value="0" style="width: 60px;">
+		<label for="averfil1bin">Aver.moving size: </label> 
+		<input type="number" id="averfil1bin" name="avfs" min="0" value="0" style="width: 60px;">
 	</p>
 	<p style="font-size: 10px; text-align:center;"> fitplotter (c) karaul (2021) </p>
 
