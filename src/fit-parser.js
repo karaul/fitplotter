@@ -1,10 +1,702 @@
-//hacked by Gordon Moore 18 Feb 2021 to allow client side
-//in html just <script src=./[your scripts folder]/bf-fit.js></script>
+// adapted from https://github.com/jimmykane/fit-parser
+
+class FitParser {
+  constructor(options = {}) {
+    this.options = {
+      force: options.force != null ? options.force : true,
+      speedUnit: options.speedUnit || 'm/s',
+      lengthUnit: options.lengthUnit || 'm',
+      temperatureUnit: options.temperatureUnit || 'celsius',
+      elapsedRecordField: options.elapsedRecordField || false,
+      mode: options.mode || 'list',
+    };
+  }
+
+  parse(content, callback) {
+    //const blob = new Uint8Array(getArrayBuffer(content));  //content is already an arraybuffer in my code!
+    const blob = new Uint8Array(content);
+
+    if (blob.length < 12) {
+      callback('File too small to be a FIT file', {});
+      if (!this.options.force) {
+        return;
+      }
+    }
+
+    const headerLength = blob[0];
+    if (headerLength !== 14 && headerLength !== 12) {
+      callback('Incorrect header size', {});
+      if (!this.options.force) {
+        return;
+      }
+    }
+
+    let fileTypeString = '';
+    for (let i = 8; i < 12; i++) {
+      fileTypeString += String.fromCharCode(blob[i]);
+    }
+    if (fileTypeString !== '.FIT') {
+      callback('Missing \'.FIT\' in header', {});
+      if (!this.options.force) {
+        return;
+      }
+    }
+
+    if (headerLength === 14) {
+      const crcHeader = blob[12] + (blob[13] << 8);
+      const crcHeaderCalc = calculateCRC(blob, 0, 12);
+      if (crcHeader !== crcHeaderCalc) {
+        // callback('Header CRC mismatch', {});
+        // TODO: fix Header CRC check
+        if (!this.options.force) {
+          return;
+        }
+      }
+    }
+
+    const protocolVersion = blob[1];
+    const profileVersion = blob[2] + (blob[3] << 8);
+    const dataLength = blob[4] + (blob[5] << 8) + (blob[6] << 16) + (blob[7] << 24);
+    const crcStart = dataLength + headerLength;
+    const crcFile = blob[crcStart] + (blob[crcStart + 1] << 8);
+    const crcFileCalc = calculateCRC(blob, headerLength === 12 ? 0 : headerLength, crcStart);
+
+    if (crcFile !== crcFileCalc) {
+      // callback('File CRC mismatch', {});
+      // TODO: fix File CRC check
+      if (!this.options.force) {
+        return;
+      }
+    }
+
+    const fitObj = {};
+    fitObj.protocolVersion = protocolVersion;
+    fitObj.profileVersion = profileVersion;
+
+    const sessions = [];
+    const laps = [];
+    const records = [];
+    const events = [];
+    const hrv = [];
+    const devices = [];
+    const applications = [];
+    const fieldDescriptions = [];
+    const dive_gases = [];
+    const course_points = [];
+    const sports = [];
+    const monitors = [];
+    const stress = [];
+    const definitions = [];
+    const file_ids = [];
+    const monitor_info = [];
+    const lengths = [];
+
+    let tempLaps = [];
+    let tempLengths = [];
+    let tempRecords = [];
+
+    let loopIndex = headerLength;
+    const messageTypes = [];
+    const developerFields = [];
+
+    const isModeCascade = this.options.mode === 'cascade';
+    const isCascadeNeeded = isModeCascade || this.options.mode === 'both';
+
+    let startDate, lastStopTimestamp;
+    let pausedTime = 0;
+
+    while (loopIndex < crcStart) {
+      const { nextIndex,
+        messageType,
+        message } = readRecord(blob, messageTypes, developerFields, loopIndex, this.options, startDate, pausedTime);
+      loopIndex = nextIndex;
+
+      switch (messageType) {
+        case 'lap':
+          if (isCascadeNeeded) {
+            message.records = tempRecords;
+            tempRecords = [];
+            tempLaps.push(message);
+            message.lengths = tempLengths;
+            tempLengths = [];
+          }
+          laps.push(message);
+          break;
+        case 'session':
+          if (isCascadeNeeded) {
+            message.laps = tempLaps;
+            tempLaps = [];
+          }
+          sessions.push(message);
+          break;
+        case 'event':
+          if (message.event === 'timer') {
+            if (message.event_type === 'stop_all') {
+              lastStopTimestamp = message.timestamp;
+            } else if (message.event_type === 'start' && lastStopTimestamp) {
+              pausedTime += (message.timestamp - lastStopTimestamp) / 1000;
+            }
+          }
+          events.push(message);
+          break;
+        case 'length':
+          if (isCascadeNeeded) {
+            tempLengths.push(message);
+          }
+          lengths.push(message);
+          break;
+        case 'hrv':
+          hrv.push(message);
+          break;
+        case 'record':
+          if (!startDate) {
+            startDate = message.timestamp;
+            message.elapsed_time = 0;
+            message.timer_time = 0;
+          }
+          records.push(message);
+          if (isCascadeNeeded) {
+            tempRecords.push(message);
+          }
+          break;
+        case 'field_description':
+          fieldDescriptions.push(message);
+          break;
+        case 'device_info':
+          devices.push(message);
+          break;
+        case 'developer_data_id':
+          applications.push(message);
+          break;
+        case 'dive_gas':
+          dive_gases.push(message);
+          break;
+        case 'course_point':
+          course_points.push(message);
+          break;
+        case 'sport':
+          sports.push(message);
+          break;
+        case 'file_id':
+          if(message){
+            file_ids.push(message);
+          }
+          break;
+        case 'definition':
+          if(message){
+            definitions.push(message);
+          }
+          break;
+        case 'monitoring':
+          monitors.push(message);
+          break;
+        case 'monitoring_info':
+          monitor_info.push(message);
+          break;
+        case 'stress_level':
+          stress.push(message);
+          break;
+        case 'software':
+          fitObj.software = message;
+          break;
+        default:
+          if (messageType !== '') {
+            fitObj[messageType] = message;
+          }
+          break;
+      }
+    }
+
+    if (isCascadeNeeded) {
+      fitObj.activity = fitObj.activity || {};
+      fitObj.activity.sessions = sessions;
+      fitObj.activity.events = events;
+      fitObj.activity.hrv = hrv;
+      fitObj.activity.device_infos = devices;
+      fitObj.activity.developer_data_ids = applications;
+      fitObj.activity.field_descriptions = fieldDescriptions;
+      fitObj.activity.sports = sports;
+    }
+    if (!isModeCascade) {
+      fitObj.sessions = sessions;
+      fitObj.laps = laps;
+      fitObj.lengths = lengths;
+      fitObj.records = records;
+      fitObj.events = events;
+      fitObj.device_infos = devices;
+      fitObj.developer_data_ids = applications;
+      fitObj.field_descriptions = fieldDescriptions;
+      fitObj.hrv = hrv;
+      fitObj.dive_gases = dive_gases;
+      fitObj.course_points = course_points;
+      fitObj.sports = sports;
+      fitObj.devices = devices;
+      fitObj.monitors = monitors;
+      fitObj.stress = stress;
+      fitObj.file_ids = file_ids;
+      fitObj.monitor_info = monitor_info;
+      fitObj.definitions = definitions;
+    }
+
+    callback(null, fitObj);
+  }
+}
+
+//exports.FitParser = FitParser;
+module.exports = FitParser;
+
+function addEndian(littleEndian, bytes) {
+  let result = 0;
+  if (!littleEndian) bytes.reverse();
+  for (let i = 0; i < bytes.length; i++) {
+      result += (bytes[i] << (i << 3)) >>> 0;
+  }
+
+  return result;
+}
+
+var timestamp = 0;
+var lastTimeOffset = 0;
+const CompressedTimeMask = 31;
+const CompressedLocalMesgNumMask = 0x60;
+const CompressedHeaderMask = 0x80;
+const GarminTimeOffset = 631065600000;
+let monitoring_timestamp = 0;
+
+function readData(blob, fDef, startIndex, options) {
+  if (fDef.type !== 'string' && fDef.type !== 'byte_array') {
+      const temp = [];
+      for (let i = 0; i < fDef.size; i++) {
+          temp.push(blob[startIndex + i]);
+      }
+
+      var buffer = new Uint8Array(temp).buffer;
+      var dataView = new DataView(buffer);
+
+      try {
+          switch (fDef.type) {
+              case 'sint8':
+                  return dataView.getInt8(0, fDef.littleEndian);
+              case 'uint8':
+                  return dataView.getUnt8(0, fDef.littleEndian);
+              case 'sint16':
+                  return dataView.getInt16(0, fDef.littleEndian);
+              case 'uint16':
+              case 'uint16z':
+                  return dataView.getUint16(0, fDef.littleEndian);
+              case 'sint32':
+                  return dataView.getInt32(0, fDef.littleEndian);
+              case 'uint32':
+              case 'uint32z':
+                  return dataView.getUint32(0, fDef.littleEndian);
+              case 'float32':
+                  return dataView.getFloat32(0, fDef.littleEndian);
+              case 'float64':
+                  return dataView.getFloat64(0, fDef.littleEndian);
+              case 'uint32_array':
+                  const array32 = [];
+                  for (let i = 0; i < fDef.size; i += 4) {
+                      array32.push(dataView.getUint32(i, fDef.littleEndian));
+                  }
+                  return array32;
+              case 'uint16_array':
+                  const array = [];
+                  for (let i = 0; i < fDef.size; i += 2) {
+                      array.push(dataView.getUint16(i, fDef.littleEndian));
+                  }
+                  return array;
+          }
+      }catch (e) {
+          if (!options.force){
+              throw e;
+          }
+      }
+
+      return addEndian(fDef.littleEndian, temp);
+  }
+
+  if (fDef.type === 'string') {
+      const _temp = [];
+      for (let i3 = 0; i3 < fDef.size; i3++) {
+          if (blob[startIndex + i3]) {
+              _temp.push(blob[startIndex + i3]);
+          }
+      }
+	return new TextDecoder().decode( new Uint16Array(_temp).buffer );
+  }
+
+  if (fDef.type === 'byte_array') {
+      const temp = [];
+      for (let i = 0; i < fDef.size; i++) {
+          temp.push(blob[startIndex + i]);
+      }
+      return temp;
+  }
+
+  return blob[startIndex];
+}
+
+function formatByType(data, type, scale, offset) {
+  switch (type) {
+      case 'date_time':
+      case 'local_date_time':
+          return new Date((data * 1000) + GarminTimeOffset);
+      case 'sint32':
+          return data * FIT.scConst;
+      case 'uint8':
+      case 'sint16':
+      case 'uint32':
+      case 'uint16':
+          return scale ? data / scale + offset : data;
+      case 'uint32_array':
+      case 'uint16_array':
+          return data.map(dataItem => scale ? dataItem / scale + offset : dataItem);
+      default:
+          if (!FIT.types[type]) {
+              return data;
+          }
+          // Quick check for a mask
+          var values = [];
+          for (var key in FIT.types[type]) {
+              if (FIT.types[type].hasOwnProperty(key)) {
+                  values.push(FIT.types[type][key])
+              }
+          }
+          if (values.indexOf('mask') === -1){
+              return FIT.types[type][data];
+          }
+          var dataItem = {};
+          for (var key in FIT.types[type]) {
+              if (FIT.types[type].hasOwnProperty(key)) {
+                  if (FIT.types[type][key] === 'mask'){
+                      dataItem.value = data & key
+                  }else{
+                      dataItem[FIT.types[type][key]] = !!((data & key) >> 7) // Not sure if we need the >> 7 and casting to boolean but from all the masked props of fields so far this seems to be the case
+                  }
+              }
+          }
+          return dataItem;
+  }
+}
+
+function isInvalidValue(data, type) {
+  switch (type) {
+      case 'enum':
+          return data === 0xFF;
+      case 'sint8':
+          return data === 0x7F;
+      case 'uint8':
+          return data === 0xFF;
+      case 'sint16':
+          return data === 0x7FFF;
+      case 'uint16':
+          return data === 0xFFFF;
+      case 'sint32':
+          return data === 0x7FFFFFFF;
+      case 'uint32':
+          return data === 0xFFFFFFFF;
+      case 'string':
+          return data === 0x00;
+      case 'float32':
+          return data === 0xFFFFFFFF;
+      case 'float64':
+          return data === 0xFFFFFFFFFFFFFFFF;
+      case 'uint8z':
+          return data === 0x00;
+      case 'uint16z':
+          return data === 0x0000;
+      case 'uint32z':
+          return data === 0x000000;
+      case 'byte':
+          return data === 0xFF;
+      case 'sint64':
+          return data === 0x7FFFFFFFFFFFFFFF;
+      case 'uint64':
+          return data === 0xFFFFFFFFFFFFFFFF;
+      case 'uint64z':
+          return data === 0x0000000000000000;
+      default:
+          return false;
+  }
+}
+
+function convertTo(data, unitsList, speedUnit) {
+  const unitObj = FIT.options[unitsList][speedUnit];
+  return unitObj ? data * unitObj.multiplier + unitObj.offset : data;
+}
+
+function applyOptions(data, field, options) {
+  switch (field) {
+      case 'speed':
+      case 'enhanced_speed':
+      case 'vertical_speed':
+      case 'avg_speed':
+      case 'max_speed':
+      case 'speed_1s':
+      case 'ball_speed':
+      case 'enhanced_avg_speed':
+      case 'enhanced_max_speed':
+      case 'avg_pos_vertical_speed':
+      case 'max_pos_vertical_speed':
+      case 'avg_neg_vertical_speed':
+      case 'max_neg_vertical_speed':
+          return convertTo(data, 'speedUnits', options.speedUnit);
+      case 'distance':
+      case 'total_distance':
+      case 'enhanced_avg_altitude':
+      case 'enhanced_min_altitude':
+      case 'enhanced_max_altitude':
+      case 'enhanced_altitude':
+      case 'height':
+      case 'odometer':
+      case 'avg_stroke_distance':
+      case 'min_altitude':
+      case 'avg_altitude':
+      case 'max_altitude':
+      case 'total_ascent':
+      case 'total_descent':
+      case 'altitude':
+      case 'cycle_length':
+      case 'auto_wheelsize':
+      case 'custom_wheelsize':
+      case 'gps_accuracy':
+          return convertTo(data, 'lengthUnits', options.lengthUnit);
+      case 'temperature':
+      case 'avg_temperature':
+      case 'max_temperature':
+          return convertTo(data, 'temperatureUnits', options.temperatureUnit);
+      default:
+          return data;
+  }
+}
+
+//export 
+function readRecord(blob, messageTypes, developerFields, startIndex, options, startDate, pausedTime) {
+  const recordHeader = blob[startIndex];
+  let localMessageType = recordHeader & 15;
+
+  if((recordHeader & CompressedHeaderMask) === CompressedHeaderMask){
+      //compressed timestamp
+
+      var timeoffset = recordHeader & CompressedTimeMask;
+      timestamp += ((timeoffset - lastTimeOffset) & CompressedTimeMask);
+      lastTimeOffset = timeoffset;
+
+      localMessageType = ((recordHeader & CompressedLocalMesgNumMask) >> 5);
+  } else if ((recordHeader & 64) === 64) {
+      // is definition message
+      // startIndex + 1 is reserved
+
+      const hasDeveloperData = (recordHeader & 32) === 32;
+      const lEnd = blob[startIndex + 2] === 0;
+      const numberOfFields = blob[startIndex + 5];
+      const numberOfDeveloperDataFields = hasDeveloperData ? blob[startIndex + 5 + numberOfFields * 3 + 1] : 0;
+
+      const mTypeDef = {
+          littleEndian: lEnd,
+          globalMessageNumber: addEndian(lEnd, [blob[startIndex + 3], blob[startIndex + 4]]),
+          numberOfFields: numberOfFields + numberOfDeveloperDataFields,
+          fieldDefs: [],
+      };
+
+      const message = getFitMessage(mTypeDef.globalMessageNumber);
+
+      for (let i = 0; i < numberOfFields; i++) {
+          const fDefIndex = startIndex + 6 + (i * 3);
+          const baseType = blob[fDefIndex + 2];
+          const { field, type } = message.getAttributes(blob[fDefIndex]);
+          const fDef = {
+              type,
+              fDefNo: blob[fDefIndex],
+              size: blob[fDefIndex + 1],
+              endianAbility: (baseType & 128) === 128,
+              littleEndian: lEnd,
+              baseTypeNo: (baseType & 15),
+              name: field,
+              dataType: getFitMessageBaseType(baseType & 15),
+          };
+
+          mTypeDef.fieldDefs.push(fDef);
+      }
+
+      // numberOfDeveloperDataFields = 0 so it wont crash here and wont loop
+      for (let i = 0; i < numberOfDeveloperDataFields; i++) {
+          // If we fail to parse then try catch
+          try {
+              const fDefIndex = startIndex + 6 + (numberOfFields * 3) + 1 + (i * 3);
+
+              const fieldNum = blob[fDefIndex];
+              const size = blob[fDefIndex + 1];
+              const devDataIndex = blob[fDefIndex + 2];
+
+              const devDef = developerFields[devDataIndex][fieldNum];
+
+              const baseType = devDef.fit_base_type_id;
+
+              const fDef = {
+                  type: FIT.types.fit_base_type[baseType],
+                  fDefNo: fieldNum,
+                  size: size,
+                  endianAbility: (baseType & 128) === 128,
+                  littleEndian: lEnd,
+                  baseTypeNo: (baseType & 15),
+                  name: devDef.field_name,
+                  dataType: getFitMessageBaseType(baseType & 15),
+                  scale: devDef.scale || 1,
+                  offset: devDef.offset || 0,
+                  developerDataIndex: devDataIndex,
+                  isDeveloperField: true,
+              };
+
+              mTypeDef.fieldDefs.push(fDef);
+          }catch (e) {
+              if (options.force){
+                  continue;
+              }
+              throw e;
+          }
+      }
+
+      messageTypes[localMessageType] = mTypeDef;
+
+      const nextIndex = startIndex + 6 + (mTypeDef.numberOfFields * 3);
+      const nextIndexWithDeveloperData = nextIndex + 1;
+
+      return {
+          messageType: 'definition',
+          nextIndex: hasDeveloperData ? nextIndexWithDeveloperData : nextIndex
+      };
+  }
+
+  const messageType = messageTypes[localMessageType] || messageTypes[0];
+
+  // TODO: handle compressed header ((recordHeader & 128) == 128)
+
+  // uncompressed header
+  let messageSize = 0;
+  let readDataFromIndex = startIndex + 1;
+  const fields = {};
+  const message = getFitMessage(messageType.globalMessageNumber);
+
+  for (let i = 0; i < messageType.fieldDefs.length; i++) {
+      const fDef = messageType.fieldDefs[i];
+      const data = readData(blob, fDef, readDataFromIndex, options);
+
+      if (!isInvalidValue(data, fDef.type)) {
+          if (fDef.isDeveloperField) {
+
+              const field = fDef.name;
+              const type =  fDef.type;
+              const scale = fDef.scale;
+              const offset = fDef.offset;
+
+              fields[fDef.name] = applyOptions(formatByType(data, type, scale, offset), field, options);
+          } else {
+              const { field, type, scale, offset } = message.getAttributes(fDef.fDefNo);
+
+              if (field !== 'unknown' && field !== '' && field !== undefined) {
+                  fields[field] = applyOptions(formatByType(data, type, scale, offset), field, options);
+              }
+          }
+
+          if (message.name === 'record' && options.elapsedRecordField) {
+              fields.elapsed_time = (fields.timestamp - startDate) / 1000;
+              fields.timer_time = fields.elapsed_time - pausedTime;
+          }
+      }
+
+      readDataFromIndex += fDef.size;
+      messageSize += fDef.size;
+  }
+
+  if (message.name === 'field_description') {
+      developerFields[fields.developer_data_index] = developerFields[fields.developer_data_index] || [];
+      developerFields[fields.developer_data_index][fields.field_definition_number] = fields;
+  }
+
+  if (message.name === 'monitoring') {
+      //we need to keep the raw timestamp value so we can calculate subsequent timestamp16 fields
+      if(fields.timestamp){
+          monitoring_timestamp = fields.timestamp;
+          fields.timestamp = new Date(fields.timestamp * 1000 + GarminTimeOffset);
+      }
+      if(fields.timestamp16 && !fields.timestamp){
+          monitoring_timestamp += ( fields.timestamp16 - ( monitoring_timestamp & 0xFFFF ) ) & 0xFFFF;
+          //fields.timestamp = monitoring_timestamp;
+          fields.timestamp = new Date(monitoring_timestamp * 1000 + GarminTimeOffset);
+      }
+  }
+
+  const result = {
+      messageType: message.name,
+      nextIndex: startIndex + messageSize + 1,
+      message: fields,
+  };
+
+  return result;
+}
+
+function getArrayBuffer(buffer) {
+  if (buffer instanceof ArrayBuffer) {
+      return buffer;
+  }
+  const ab = new ArrayBuffer(buffer.length);
+  const view = new Uint8Array(ab);
+  for (let i = 0; i < buffer.length; ++i) {
+      view[i] = buffer[i];
+  }
+  return ab;
+}
+
+function calculateCRC(blob, start, end) {
+  const crcTable = [
+      0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
+      0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400,
+  ];
+
+  let crc = 0;
+  for (let i = start; i < end; i++) {
+      const byte = blob[i];
+      let tmp = crcTable[crc & 0xF];
+      crc = (crc >> 4) & 0x0FFF;
+      crc = crc ^ tmp ^ crcTable[byte & 0xF];
+      tmp = crcTable[crc & 0xF];
+      crc = (crc >> 4) & 0x0FFF;
+      crc = crc ^ tmp ^ crcTable[(byte >> 4) & 0xF];
+  }
+
+  return crc;
+}
+
+function getFitMessage(messageNum) {
+  return {
+    name: getMessageName(messageNum),
+    getAttributes: (fieldNum) => getFieldObject(fieldNum, messageNum),
+  };
+}
+
+// TODO
+function getFitMessageBaseType(foo) {
+  return foo;
+}
+
+function getMessageName(messageNum) {
+  const message = FIT.messages[messageNum];
+  return message ? message.name : '';
+}
+
+function getFieldObject(fieldNum, messageNum) {
+  const message = FIT.messages[messageNum];
+  if (!message) {
+    return '';
+  }
+  const fieldObj = message[fieldNum];
+  return fieldObj ? fieldObj : {};
+}
 
 // some unit conversion constants
 const metersInOneKilometer = 1000;
 const secondsInOneHour = 3600;
-// according to https://en.wikipedia.org/wiki/Mile
 const metersInOneMile = 1609.344;
 
 //export 
@@ -4246,21 +4938,3 @@ const FIT = {
     }
   },
 };
-
-//export 
-function getMessageName(messageNum) {
-  const message = FIT.messages[messageNum];
-  return message ? message.name : '';
-}
-
-//export 
-function getFieldObject(fieldNum, messageNum) {
-  const message = FIT.messages[messageNum];
-  if (!message) {
-    return '';
-  }
-  const fieldObj = message[fieldNum];
-  return fieldObj ? fieldObj : {};
-}
-
-

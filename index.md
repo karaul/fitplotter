@@ -8,7 +8,8 @@
 	<script src="./src/leaflet/dist/leaflet.js"></script>
 	<script type="text/javascript" src="./src/canvasjs/canvasjs.min.js"></script>
 
-	<script src=./src/bf-backfit.js></script>
+	<script>var module = {};</script>
+	<script src=./src/fit-parser.js></script>
 	<script src=./src/main.js></script>
 
 	<style>
