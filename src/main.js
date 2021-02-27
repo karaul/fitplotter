@@ -106,9 +106,24 @@ function medfilter(a, bin) {
 				mode: 'list',
 			});
 
+			/*
+			const queryString = window.location.search;//href;
+			const urlParams = new URLSearchParams(queryString);
+			const fitfilename = urlParams.get('file')
+			console.log(fitfilename);				
+			document.getElementById('myfile').value = fitfilename;
+			console.log(document.getElementById('myfile').value);				
+			*/
+
+			//document.getElementById('myfile').onclick = function () {
+			//}
+
 			document.getElementById('myfile').onchange = function () {
+				//const queryString = window.location.href;
+				//console.log(queryString);
 				var file = this.files[0];
 				//var file = e.target.files[0];
+				//console.log(file);
 				fReader.readAsArrayBuffer(file);
 			}
 
