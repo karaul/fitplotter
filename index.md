@@ -68,8 +68,13 @@
 </head>
 
 <body>
-		<input id="myfile" type="file" value="" accept=".fit" 
-			style="padding: 0px; width:24mm; background: #ddd; size: 1"/>
+		<span>
+			<label for="myfile"><b>Load new file:</b></label>
+			<input id="myfile" type="file" value="" accept=".fit" 
+			style="padding: 0px; width:24mm; background: #ddd; size: 1"/><br>
+			<label for="files"><b>&nbsp Loaded files:</b></label>
+			<select name="files" id="files" style="min-width: 120px"></select>
+		</span>
 		&nbsp &nbsp 
 		<select name="mode" id="openmode"> 
 			<option value="automode"> auto mode</option>
@@ -86,6 +91,10 @@
 		<input id="update" type="button" value='Update plot'/> 
 		
 		<input id="clean" type="button" value='Clean plot'/> 
+		
+		<input id="cleanMap" type="button" value='Clean map'/> 
+
+		<input id="reload" type="button" value='Reload'/> 
 	
 		<div class="container">
 
