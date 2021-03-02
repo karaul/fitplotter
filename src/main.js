@@ -806,7 +806,10 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 
 		document.getElementById('reload').onclick = function (e) {
-			document.location.reload() 
+			setTimeout(function(){
+				document.location.reload();
+				//window.location.reload();
+			}, 300);
 		}
 		
 		document.getElementById('files').onchange = function (e) {
