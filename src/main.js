@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	var fitdata = {};	
 	var activityLabel = '';
 	var cleanPlotFlag = true;
+	var callXMLHttpRequest = false;
 	var fReader = new FileReader();
 	const fitParser = new FitParser({
 		force: true,
@@ -553,11 +554,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	fReader.onload = function (e) {
 		//console.log(e.target.result); /// <-- this contains an ArrayBuffer
+		parseBLOB(e.target.result);
+	}
+
+	function parseBLOB(blob) {
 		var parser;
 		if (filename.slice(-4) === ".fit") parser=fitParser;
 		if (filename.slice(-4) === ".tkl") parser=tklParser;
 		let timeStartParsing = performance.now();
-		parser.parse(e.target.result, function (error, data) {
+		parser.parse(blob, function (error, data) {
 			if (error) {
 			  console.log(error);
 			} else {
@@ -640,15 +645,22 @@ document.addEventListener('DOMContentLoaded', function () {
 		cleanPlotFlag = noXaxisFlag;
 		document.getElementById('xaxis').dispatchEvent(new Event('change'));
 
+		const filesOptions = document.getElementById("files");
+		let filesOptionText = activityLabel + " ["+ filename.replace(/^.*[\\\/]/, '').slice(0,10) + "..." + filename.slice(-4) + "]";
+		if ( ! callXMLHttpRequest ) {
+			// call not from the XMLHttpRequest 
+			filesOptions.add(new Option(filesOptionText, filename));
+		}
+		else {
+			filesOptions.options[filesOptions.selectedIndex].text = filesOptionText;
+		}
+
+		filesOptions.value = filename;
 		fitdataObj[filename] = {
 			data: fitdata,
 			yOptions: yOptions
 		};
-		const filesOptions = document.getElementById("files");
-		//let filesOptionText = activityLabel;
-		//filesOptionText = filesOptionText + (filename.slice(0, 10) === activityLabel.slice(0, 10)) ? "" : filename.slice(0, 10);
-		filesOptions.add(new Option(activityLabel + " ["+ filename.slice(0,10) + "..." + filename.slice(-4) + "]", filename));
-		filesOptions.value = filename;
+
 		prepareFitDataMap(fitdata);
 	}
 
@@ -787,12 +799,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	document.getElementById('files').onchange = function (e) {
 		filename = document.getElementById('files').value;
-		fitdata = fitdataObj[filename].data;
-		yOptions = fitdataObj[filename].yOptions;
-		activityLabel = new Date(fitdata.sessions[0]["start_time"]).toISOString().slice(0, 10) + " " + fitdata.sessions[0].sport;
-		document.getElementById('openmode').value = "manualmode";
-		cleanPlotFlag = false;
-		document.getElementById('xaxis').dispatchEvent(new Event('change'));
+		if(filename in fitdataObj) {
+			fitdata = fitdataObj[filename].data;
+			yOptions = fitdataObj[filename].yOptions;
+			activityLabel = new Date(fitdata.sessions[0]["start_time"]).toISOString().slice(0, 10) + " " + fitdata.sessions[0].sport;
+			document.getElementById('openmode').value = "manualmode";
+			cleanPlotFlag = false;
+			document.getElementById('xaxis').dispatchEvent(new Event('change'));
+		}
+		else { 
+			callXMLHttpRequest = true; // it is true at the 2nd, 3rd, etc call
+			makeXMLHttpRequest(filename);
+		}
+	}
+
+	function httpRequestOnLoad() {
+		if (this.readyState  === 4) {
+		   if (this.status === 200) {
+			   const blob = new Uint8Array(this.response);
+			   parseBLOB(blob);
+			}			
+		}		
+	}
+
+	const queryString = window.location.search; 
+	const urlParams = new URLSearchParams(queryString);	
+	if ( urlParams.get('file') != null ) {
+		filename = urlParams.get('file');
+		callXMLHttpRequest = false;	// it is false at the first call only
+		makeXMLHttpRequest( filename );
+	}
+
+	function makeXMLHttpRequest(filename) {
+		console.log(filename);    
+		let filenamexhr = "./../" + filename.replace("plus","+");
+		let xhr = new XMLHttpRequest();			
+		xhr.onload = httpRequestOnLoad;
+		xhr.open('GET', decodeURI(filenamexhr), true);
+		xhr.responseType = 'arraybuffer';
+		xhr.onerror = function (e) {
+			console.log(error(xhr.statusText));		
+		}
+		xhr.send(null);				
 	}
 
 });
