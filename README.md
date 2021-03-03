@@ -1,6 +1,6 @@
 # fitplotter
 
-A simple one-page tool to plot parameters recorded in the \*.fit file used by Garmin and Suunto.
+A simple one-page tool to plot parameters recorded in the `*.fit` file used by Garmin and Suunto.
 
 Starting from 2021-03-03, it also works with `*.tkl` format (watch models: GPSmaster, navrun-500, ultrasport, etc)
 
