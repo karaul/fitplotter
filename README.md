@@ -2,7 +2,9 @@
 
 A simple one-page tool to plot parameters recorded in the \*.fit file used by Garmin and Suunto.
 
-online [demo](https://karaul.github.io/fitplotter). If you have no own fit files at the moment, you can download them from [examples](https://github.com/karaul/fitplotter/blob/main/examples/)
+Starting from 2021-03-03, it also works with `*.tkl` format (watch models: GPSmaster, navrun-500, ultrasport, etc)
+
+Version [online](https://karaul.github.io/fitplotter). If you have no own fit files at the moment, you can download them from [examples](https://github.com/karaul/fitplotter/blob/main/examples/)
 
 The wrapper for `fitplotter` is [fitalyser](https://github.com/karaul/fitalyser) - parallel project.
 
@@ -14,14 +16,16 @@ Garmin device does  recording the measured paremeters into a binary `.fit` file 
 
 ## Features
 
-- Works with any `*.fit` file (Garmin, Suunto);
-- Plot data from different `*.fit` files in one plot;
+- Work with any `*.fit` file (Garmin, Suunto);
+- Work with `*.tkl` (sport watch models: GPSmaster, navrun-500, ultrasport, etc);
+- Plot data from different files in one plot;
 - Independent y-axes;
 - hide/unhide curves by clicking on curve's name in the below legend;
 - Synchronization of the plot pointer at the left with the map marker on the right;
 - zoom of plot area by mouse click;
 - Automatically calculate an average of the plotted parameters in the zoomed area;
 - Visualise laps;
+- Can remove spikes and  make noisy data smooth;
 
 ## Installation
 

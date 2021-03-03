@@ -10,6 +10,7 @@
 
 	<script>var module = {};</script>
 	<script src=./src/fit-parser.js></script>
+	<script src=./src/tkl-parser.js></script>
 	<script src=./src/main.js></script>
 
 	<style>
@@ -70,7 +71,7 @@
 <body>
 		<span>
 			<label for="myfile"><b>Load new file:</b></label>
-			<input id="myfile" type="file" value="" accept=".fit" 
+			<input id="myfile" type="file" value="" accept=".fit, .tkl" 
 			style="padding: 0px; width:24mm; background: #ddd; size: 1"/>
 			<label for="files"><b>&nbsp Loaded files:</b></label>
 			<select name="files" id="files" style="min-width: 120px"></select>

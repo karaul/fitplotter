@@ -1,5 +1,3 @@
-'use strict';
-
 // Add an event listener of DOMContentLoaded to the whole document and call an anonymous function.
 // You can then wrap your code in that function's brackets
 // and it will execute once loading is complete.
@@ -7,6 +5,8 @@
 document.addEventListener('DOMContentLoaded', function () {
 
 	//    console.log('Aloha');
+
+	//"use strict";
 
 	//============ Utilities ======================================================//
 	const swap = (arr, x, y) => [arr[x], arr[y]] = [arr[y], arr[x]];
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	var activityLabel = '';
 	var cleanPlotFlag = true;
 	var fReader = new FileReader();
-	var fitParser = new FitParser({
+	const fitParser = new FitParser({
 		force: true,
 		speedUnit: 'km/h',
 		lengthUnit: 'm',
@@ -127,6 +127,10 @@ document.addEventListener('DOMContentLoaded', function () {
 		elapsedRecordField: true,
 		mode: 'list',
 	});
+
+	const tklParser = new TklParser();
+
+	// variables for working with canvasjs
 	var chartdata = [];
 	var axisXops = {
 		crosshair: {
@@ -549,17 +553,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	fReader.onload = function (e) {
 		//console.log(e.target.result); /// <-- this contains an ArrayBuffer
-		//loadFitFile(e.target.result);
-		let timeStartFitParsing = performance.now();
-		fitParser.parse(e.target.result, function (error, data) {
+		var parser;
+		if (filename.slice(-4) === ".fit") parser=fitParser;
+		if (filename.slice(-4) === ".tkl") parser=tklParser;
+		let timeStartParsing = performance.now();
+		parser.parse(e.target.result, function (error, data) {
+			if (error) {
+			  console.log(error);
+			} else {
+				let timeEndParsing = performance.now();
+				console.log('file parsing takes: ' + parseFloat(timeEndParsing - timeStartParsing) + ' ms');
+				//console.log(data);
+				prepareFitData(data);
+			}
+		});
+		/*fitParser.parse(e.target.result, function (error, data) {
 			if (error) {
 				console.log(error);
 			} else {
-				let timeEndFitParsing = performance.now();
-				console.log('fit file parsing takes: ' + parseFloat(timeEndFitParsing - timeStartFitParsing) + ' ms');
+				let timeEndParsing = performance.now();
+				console.log('fit file parsing takes: ' + parseFloat(timeEndParsing - timeStartParsing) + ' ms');
 				prepareFitData(data);
 			}
-		})
+		})*/
 	}
 
 	function prepareFitData(data) {
