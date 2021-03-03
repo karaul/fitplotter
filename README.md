@@ -25,15 +25,16 @@ Garmin device does  recording the measured paremeters into a binary \*.fit file 
 
 ## Installation
 
-### Installation for non-programmers who found this program in github
+#### Installation for non-programmers who found this program in github
 
 - click on the green button and download everything as zip file
 - unzip
 - Double click on index.html
 
-### Installation for programmers who found it in github
+#### Installation for programmers who found it in github
 
-```github clone https://github.com/karaul/fitplotter 
+```
+github clone https://github.com/karaul/fitplotter.git
 ```
 
 ## Usage
