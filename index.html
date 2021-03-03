@@ -71,7 +71,7 @@
 		<span>
 			<label for="myfile"><b>Load new file:</b></label>
 			<input id="myfile" type="file" value="" accept=".fit" 
-			style="padding: 0px; width:24mm; background: #ddd; size: 1"/><br>
+			style="padding: 0px; width:24mm; background: #ddd; size: 1"/>
 			<label for="files"><b>&nbsp Loaded files:</b></label>
 			<select name="files" id="files" style="min-width: 120px"></select>
 		</span>
@@ -80,20 +80,23 @@
 			<option value="automode"> auto mode</option>
 			<option value="manualmode">manual add</option>
 		</select>
+		<p style="line-height: 30px;"> 
 		&nbsp  &nbsp 
 		<label for="xaxis">x-axis:</label>
 		<select name="x" id="xaxis" style="min-width: 80px">
 		</select>
 		&nbsp  &nbsp 
 		<label for="ylist">y-axis:</label>
-		<select name="y" id="ylist" style="min-width: 80px"></select>
-		&nbsp  &nbsp 
+		<select name="y" id="ylist" style="min-width: 80px"></select>		
+		&nbsp  &nbsp &nbsp  &nbsp 
 		<input id="update" type="button" value='Update plot'/> 
 		
 		<input id="clean" type="button" value='Clean plot'/> 
+		&nbsp  &nbsp &nbsp  &nbsp 
+		<input id="updateMap" type="button" value='Update map'/> 
 		
 		<input id="cleanMap" type="button" value='Clean map'/> 
-
+		&nbsp  &nbsp  &nbsp  &nbsp 
 		<input id="reload" type="button" value='Reload'/> 
 	
 		<div class="container">
@@ -148,7 +151,7 @@
 		&nbsp  &nbsp 
 		<label for="medfil1bin">Median filter size: </label> 
 		<input type="number" id="medfil1bin" name="mfs" min="0" value="0" style="width: 60px;">
-		<label for="averfil1bin">Aver.moving size: </label> 
+		<label for="averfil1bin">Average moving size: </label> 
 		<input type="number" id="averfil1bin" name="avfs" min="0" value="0" style="width: 60px;">
 	</p>
 	<p style="font-size: 10px; text-align:center;"> fitplotter (c) karaul (2021) </p>
