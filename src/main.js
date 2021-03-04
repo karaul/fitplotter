@@ -4,7 +4,7 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-	//    console.log('Aloha');
+	//console.log('Aloha');
 
 	//"use strict";
 
@@ -113,12 +113,11 @@ document.addEventListener('DOMContentLoaded', function () {
 	//============ Utilities ======================================================//
 
 	//============ Global variables  ======================================================//
-	var filename = '';
+	//var filename = '';
 	var fitdataObj = {};
 	var fitdata = {};	
 	var activityLabel = '';
 	var cleanPlotFlag = true;
-	var callXMLHttpRequest = false;
 	var fReader = new FileReader();
 	const fitParser = new FitParser({
 		force: true,
@@ -186,14 +185,6 @@ document.addEventListener('DOMContentLoaded', function () {
 		mapSegmentInfo = {},
 		withGPS;
 	//============ Global variables  ======================================================//
-
-
-	document.getElementById('myfile').onchange = function () {
-		let file = this.files[0];
-		filename = file.name;
-		//console.log(filename);
-		fReader.readAsArrayBuffer(file);
-	}
 
 	function automodePlot(yaxisshow) {
 		// input parameter  yaxisshow is array containing y to show on the plot
@@ -551,20 +542,49 @@ document.addEventListener('DOMContentLoaded', function () {
 		//}).addTo(mymap);
 	}
 
+	document.getElementById('myfile').onchange = function () {
+		const file = this.files[0];
+		const filename = file.name;
+		//console.log(filename);
+		const files = document.getElementById("files");
+		files.options.add(new Option("filename", filename));
+		files.value = filename;
+		fReader.readAsArrayBuffer(file);
+	}
 
 	fReader.onload = function (e) {
-		//console.log(e.target.result); /// <-- this contains an ArrayBuffer
-		parseBLOB(e.target.result);
+		let blob =e.target.result; // it contains an ArrayBuffer
+		parseBLOB(blob);
+	}
+
+	function errorNoFile(error,filename, errorId) {
+		let name = filename.replace(/LevelUp/g, '/../');
+		let files = document.getElementById("files");		
+		files.options.remove(files.selectedIndex);
+		console.log(error);
+		switch (errorId) {
+			case 1:
+				alert("ERROR\nProbably file:\n" + name + "\ndoes not exist");
+				break;
+			case 2:
+				alert("ERROR\nProbably file:\n" + name + "\ncorrupted");
+				break;
+			default:
+				alert("ERROR\nfile:\n" + name);
+				break;
+		}
 	}
 
 	function parseBLOB(blob) {
 		var parser;
+		const filename = document.getElementById("files").value;
 		if (filename.slice(-4) === ".fit") parser=fitParser;
 		if (filename.slice(-4) === ".tkl") parser=tklParser;
 		let timeStartParsing = performance.now();
 		parser.parse(blob, function (error, data) {
 			if (error) {
-			  console.log(error);
+				errorNoFile(error,filename,2);
+			  // remove the latest added options in the files				
 			} else {
 				let timeEndParsing = performance.now();
 				console.log('file parsing takes: ' + parseFloat(timeEndParsing - timeStartParsing) + ' ms');
@@ -572,15 +592,6 @@ document.addEventListener('DOMContentLoaded', function () {
 				prepareFitData(data);
 			}
 		});
-		/*fitParser.parse(e.target.result, function (error, data) {
-			if (error) {
-				console.log(error);
-			} else {
-				let timeEndParsing = performance.now();
-				console.log('fit file parsing takes: ' + parseFloat(timeEndParsing - timeStartParsing) + ' ms');
-				prepareFitData(data);
-			}
-		})*/
 	}
 
 	function prepareFitData(data) {
@@ -645,17 +656,10 @@ document.addEventListener('DOMContentLoaded', function () {
 		cleanPlotFlag = noXaxisFlag;
 		document.getElementById('xaxis').dispatchEvent(new Event('change'));
 
-		const filesOptions = document.getElementById("files");
-		let filesOptionText = activityLabel + " ["+ filename.replace(/^.*[\\\/]/, '').slice(0,10) + "..." + filename.slice(-4) + "]";
-		if ( ! callXMLHttpRequest ) {
-			// call not from the XMLHttpRequest 
-			filesOptions.add(new Option(filesOptionText, filename));
-		}
-		else {
-			filesOptions.options[filesOptions.selectedIndex].text = filesOptionText;
-		}
-
-		filesOptions.value = filename;
+		const files = document.getElementById("files");
+		const filename = files.options[files.selectedIndex].value;
+		const filesText = activityLabel + " ["+ filename.replace(/^.*[\\\/]/, '').slice(0,10) + "..." + filename.slice(-4) + "]";
+		files.options[files.selectedIndex].text = filesText;
 		fitdataObj[filename] = {
 			data: fitdata,
 			yOptions: yOptions
@@ -685,11 +689,14 @@ document.addEventListener('DOMContentLoaded', function () {
 			let track = L.polyline(trackdata, {color: givencolors[k]}).addTo(mymap);
 			Ltracks.push(track);
 
+			const label = new Date(fitdata.sessions[0]["start_time"]).toISOString().slice(0, 10) 
+				+ " " + fitdata.sessions[0].sport;
+			//console.log(label);
 			Lpopups.push(
 				L.popup({
 					autoClose: false
 				}).setLatLng(trackdata[Math.round(Math.random() * (trackdata.length - 1) / 2)])
-				.setContent(activityLabel).openOn(mymap)
+				.setContent(label).openOn(mymap)
 			);
 			
 
@@ -792,13 +799,13 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	document.getElementById('updateMap').onclick = function (e) {
-		for( let [filename, value] of Object.entries(fitdataObj)){
-			prepareFitDataMap(value.data);
-		}
+		Object.values(fitdataObj).forEach(v=>{
+			prepareFitDataMap(v.data);
+		})
 	}
 
 	document.getElementById('files').onchange = function (e) {
-		filename = document.getElementById('files').value;
+		const filename = document.getElementById('files').value;
 		if(filename in fitdataObj) {
 			fitdata = fitdataObj[filename].data;
 			yOptions = fitdataObj[filename].yOptions;
@@ -808,7 +815,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			document.getElementById('xaxis').dispatchEvent(new Event('change'));
 		}
 		else { 
-			callXMLHttpRequest = true; // it is true at the 2nd, 3rd, etc call
 			makeXMLHttpRequest(filename);
 		}
 	}
@@ -819,14 +825,20 @@ document.addEventListener('DOMContentLoaded', function () {
 			   const blob = new Uint8Array(this.response);
 			   parseBLOB(blob);
 			}			
+			if (this.status === 404) {
+				const  filename = document.getElementById("files").value;
+				errorNoFile("status 404",filename, 1);	
+			}
 		}		
 	}
 
 	const queryString = window.location.search; 
 	const urlParams = new URLSearchParams(queryString);	
 	if ( urlParams.get('file') != null ) {
-		filename = urlParams.get('file');
-		callXMLHttpRequest = false;	// it is false at the first call only
+		const filename = urlParams.get('file');
+		const files = document.getElementById("files");
+		files.options.add(new Option("filename", filename));
+		files.value = filename;
 		makeXMLHttpRequest( filename );
 	}
 
@@ -838,7 +850,9 @@ document.addEventListener('DOMContentLoaded', function () {
 		xhr.open('GET', decodeURI(filenamexhr), true);
 		xhr.responseType = 'arraybuffer';
 		xhr.onerror = function (e) {
-			console.log(error(xhr.statusText));		
+			console.log(error(xhr.statusText));	
+			// remove the latest added options in the files
+			document.getElementById("files").options.pop();  
 		}
 		xhr.send(null);				
 	}
