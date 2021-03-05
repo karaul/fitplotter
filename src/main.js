@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	function errorNoFile(error,filename, errorId) {
-		let name = filename.replace(/LevelUp/g, '/../');
+		let name = filename.replace(/LevelUp/g, '/../').replace("plus","+");
 		let files = document.getElementById("files");		
 		files.options.remove(files.selectedIndex);
 		console.log(error);
@@ -843,7 +843,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	function makeXMLHttpRequest(filename) {
-		console.log(filename);    
+		//console.log(filename);    
 		let filenamexhr = "./../" + filename.replace("plus","+");
 		let xhr = new XMLHttpRequest();			
 		xhr.onload = httpRequestOnLoad;
