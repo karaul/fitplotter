@@ -70,9 +70,15 @@
 
 <body>
 		<span>
-			<label for="myfile"><b>Load new file:</b></label>
+			<label for="myfile"><b>Local:</b></label>
 			<input id="myfile" type="file" value="" accept=".fit, .tkl" 
 			style="padding: 0px; width:24mm; background: #ddd; size: 1"/>
+			&nbsp
+			<label for="downloadURL">URL:</label>
+			<input id="downloadURL" type="text" value="https://connect.garmin.com/modern/activity/xxxxxxxxxx" 
+				style="width:340px"/> 
+			<input id="download" type="button" value='Download'/> 
+			&nbsp
 			<label for="files"><b>&nbsp Loaded files:</b></label>
 			<select name="files" id="files" style="min-width: 120px"></select>
 		</span>

@@ -2,6 +2,15 @@
 
 Changes of the `fitplotter` project are documented in this file
 
+## To do
+
+- οn-fly unzip of the downloaded file
+- immediate analysis of the downloaded file
+
+## 2021-03-07
+
+- It is implemented download of a single activity from Garmin Connect
+
 ## 2021-03-03
 
 - tkl-parser is added;

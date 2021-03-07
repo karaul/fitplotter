@@ -798,21 +798,31 @@ document.addEventListener('DOMContentLoaded', function () {
 		}, 300);
 	}
 
-	document.getElementById('updateMap').onclick = function (e) {
+	document.getElementById("updateMap").onclick = function (e) {
 		Object.values(fitdataObj).forEach(v=>{
 			prepareFitDataMap(v.data);
 		})
 	}
 
-	document.getElementById('files').onchange = function (e) {
-		const filename = document.getElementById('files').value;
+	document.getElementById("download").onclick = function (e) {
+		let // fit format;  working  2021-03-06
+		fileUrl = "https://connect.garmin.com/proxy/download-service/files/activity/";
+	    let id = document.getElementById('downloadURL').value.split("/").slice(-1);
+		let  downloadUrl = fileUrl + id;
+        console.log(downloadUrl);
+		// to download the current id 
+		window.location.href = downloadUrl;
+	}
+
+	document.getElementById("files").onchange = function (e) {
+		const filename = document.getElementById("files").value;
 		if(filename in fitdataObj) {
 			fitdata = fitdataObj[filename].data;
 			yOptions = fitdataObj[filename].yOptions;
 			activityLabel = new Date(fitdata.sessions[0]["start_time"]).toISOString().slice(0, 10) + " " + fitdata.sessions[0].sport;
-			document.getElementById('openmode').value = "manualmode";
+			document.getElementById("openmode").value = "manualmode";
 			cleanPlotFlag = false;
-			document.getElementById('xaxis').dispatchEvent(new Event('change'));
+			document.getElementById("xaxis").dispatchEvent(new Event("change"));
 		}
 		else { 
 			makeXMLHttpRequest(filename);
