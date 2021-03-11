@@ -804,14 +804,52 @@ document.addEventListener('DOMContentLoaded', function () {
 		})
 	}
 
+	document.getElementById("selectURL").onchange = function (e) {
+		document.getElementById('downloadURL').value = this.value;
+	}
+
+
+	//var csrf_token = "";
 	document.getElementById("download").onclick = function (e) {
-		let // fit format;  working  2021-03-06
-		fileUrl = "https://connect.garmin.com/proxy/download-service/files/activity/";
+		let fileUrl; 
+		// get_activity_summary
+		// https://connect.garmin.com/proxy/activity-service/activity/6298180784 - gives summary as JSON
+		// activity_details
+		// https://connect.garmin.com/proxy/activity-service/activity/6298180784/details
+		// strava
+		// https://www.strava.com/activities/4813519589 // activity page
+		// https://www.strava.com/activities/4813519589/export_original // download URL
+		if ( document.getElementById('downloadURL').value.indexOf("garmin") > 0	)
+			// garmin fit format;  was working  on 2021-03-06
+			fileUrl = "https://connect.garmin.com/proxy/download-service/files/activity/xxxxxxxxxx";
+		if ( document.getElementById('downloadURL').value.indexOf("strava") > 0	)
+			// strava original fit format;  was working  on 2021-03-06
+			fileUrl = "https://www.strava.com/activities/xxxxxxxxxx/export_original";
 	    let id = document.getElementById('downloadURL').value.split("/").slice(-1);
-		let  downloadUrl = fileUrl + id;
-        console.log(downloadUrl);
+		//id = "6277409729" // garmin;
+		//id = "6277409729" // garmin;
+		//console.log(id);
+		let  downloadUrl = fileUrl.replace("xxxxxxxxxx",id);
+		//console.log(downloadUrl);
 		// to download the current id 
 		window.location.href = downloadUrl;
+		/*
+		let response =  fetch(downloadUrl); //, {mode: "no-cors"});
+		let blob =  response.arrayBuffer(); 
+		let fileName = 'test.zip';
+		window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+		window.requestFileSystem(window.TEMPORARY, 1024 * 1024, function (fs) {
+			fs.root.getFile(fileName, { create: true }, function (fileEntry) {
+				fileEntry.createWriter(function (fileWriter) {
+					fileWriter.addEventListener("writeend", function () {
+						window.location = fileEntry.toURL();
+					}, false);
+					fileWriter.write(blob, "_blank");
+				}, function () { });
+			}, function () { });
+		}, function () { });					
+		*/
+		// https://github.com/johannesh83/garmin-connect-export/blob/master/gcexport.py
 	}
 
 	document.getElementById("files").onchange = function (e) {

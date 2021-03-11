@@ -5,7 +5,11 @@ Changes of the `fitplotter` project are documented in this file
 ## To do
 
 - οn-fly unzip of the downloaded file
-- immediate analysis of the downloaded file
+- ~~immediate analysis of the downloaded file~~ (impossible without an own server)
+
+## 2021-03-11
+
+- strava download  is implemented for  a single activity
 
 ## 2021-03-07
 

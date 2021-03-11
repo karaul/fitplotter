@@ -8,6 +8,8 @@
 	<script src="./src/leaflet/dist/leaflet.js"></script>
 	<script type="text/javascript" src="./src/canvasjs/canvasjs.min.js"></script>
 
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	
 	<script>var module = {};</script>
 	<script src=./src/fit-parser.js></script>
 	<script src=./src/tkl-parser.js></script>
@@ -73,8 +75,12 @@
 			<label for="myfile"><b>Local:</b></label>
 			<input id="myfile" type="file" value="" accept=".fit, .tkl" 
 			style="padding: 0px; width:24mm; background: #ddd; size: 1"/>
-			&nbsp
-			<label for="downloadURL">URL:</label>
+			&nbsp &nbsp &nbsp
+			<label for="selectURL"><b>URL:</b></label>
+			<select name="selectURL" id="selectURL"> 
+				<option value="https://connect.garmin.com/modern/activity/xxxxxxxxxx" selected> Garmin</option>
+				<option value="https://www.strava.com/activities/xxxxxxxxxx">Strava</option>
+			</select>
 			<input id="downloadURL" type="text" value="https://connect.garmin.com/modern/activity/xxxxxxxxxx" 
 				style="width:340px"/> 
 			<input id="download" type="button" value='Download'/> 
