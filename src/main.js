@@ -720,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		for (var i = 0; i < data.hrvBreath.length; i++) {
 			y.push(data.hrvBreath[i].breath_rate_RR);
 		}
-		var yfiltered = averfilter(y, 20);
+		var yfiltered = averfilter(y, 15);
 		for (var i = 0; i < y.length; i++) {
 			data.hrvBreath[i].breath_rate = yfiltered[i]
 		}
