@@ -10,6 +10,9 @@ From 2021-03-08 you can download `*.fit` file from your _Garmin Connect_ account
 
 Check the wrapper for `fitplotter` is [fitalyser](https://github.com/karaul/fitalyser) - parallel project.
 
+Check  [GChandler](https://github.com/karaul/gchandler) - download automatically new activities from Garnmin Connect to the local storage
+
+
 ![Alt text](https://github.com/karaul/fitplotter/blob/main/screenshots/screenshot.JPG?raw=true)
 
 ## Motivation
@@ -28,6 +31,7 @@ Garmin device does  recording the measured paremeters into a binary `.fit` file 
 - Automatically calculate an average of the plotted parameters in the zoomed area;
 - Visualise laps;
 - Can remove spikes and  make noisy data smooth;
+- Calculate breath_rate during the run, if HRV is on in the settings;
 
 ## Installation
 

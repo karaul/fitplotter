@@ -263,16 +263,27 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 			return dataPoints;
 		} 
-		for (let k in fitdatalocal.records) {
-			let x = fitdatalocal.records[k][fieldx];
-			if (!isNaN(x)) {
+		if (fieldy === "breath_rate" &&  fieldx === "timestamp") {
+			for (let k = 0; k < fitdatalocal.hrvBreath.length; k++) {
 				dataPoints.push({
-					x: x,
-					y: fitdatalocal.records[k][fieldy]
+					x: fitdatalocal.hrvBreath[k]["time_breath"],
+					y: fitdatalocal.hrvBreath[k]["breath_rate"],
 				});
 			}
+			return dataPoints;
 		}
-		return dataPoints;
+		if (fieldx === "distance" || fieldx === "timestamp") {
+			for (let k in fitdatalocal.records) {
+				let x = fitdatalocal.records[k][fieldx];
+				if (!isNaN(x)) {
+					dataPoints.push({
+						x: x,
+						y: fitdatalocal.records[k][fieldy]
+					});
+				}
+			}
+			return dataPoints;
+		}
 	}
 
 	document.getElementById('xaxis').onchange = function (e) {
@@ -676,7 +687,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		for (let k in data.hrv) {
 			//let s=0;
 			for(i=0; i<data.hrv[k].time.length; i++){
-				if ( data.hrv[k].time[i] < 65 ) {
+				const dataExist = (data.hrv[k].time[i] < 65); //  when = 65.325 - not a data
+				if ( dataExist) {
 					const rr = data.hrv[k].time[i];
 					const time_RR = kRR==0 ? 0: data.hrvRR[kRR-1].time_RR + rr/3600;
 					data.hrvRR.push( {time_RR: time_RR, vRR: rr, vCleanRR: rr,  heart_rate: 60/rr} );
@@ -693,10 +705,12 @@ document.addEventListener('DOMContentLoaded', function () {
 		// calculate breath_rate
 		data.hrvBreath = data.hrvBreath || [];
 		let k_old = 0;
+		let sum_heart_rate = 0; // 60/data.hrvRR[k_old].vCleanRR;
 		for (let k=1; k < data.hrvRR.length-1; k++) {
 			let rrm1 = data.hrvRR[k-1].vCleanRR;
 			let rr = data.hrvRR[k].vCleanRR;
 			let rrp1 = data.hrvRR[k+1].vCleanRR;
+			sum_heart_rate += 60/data.hrvRR[k].vCleanRR;
 			//data.hrvRR[k].vCleanRR  = (Math.abs(1-rr/((rrp1+rrm1)/2))) < 0.2 ? rr: (rrp1+rrm1)/2;
 			if (rr > rrm1 && rr >= rrp1) {
 				//if (rr < 0.8*(rrp1+rrm1)) {
@@ -705,9 +719,12 @@ document.addEventListener('DOMContentLoaded', function () {
 					//} else {
 						data.hrvRR[k].breath_rate_RR = 1/60/(data.hrvRR[k].time_RR -data.hrvRR[k_old].time_RR);
 						//if(k_old == 0) data.hrvRR[0].breath_rate_RR = data.hrvRR[k].breath_rate_RR;
+						data.hrvBreath.push({time_breath: data.hrvRR[k].time_RR, 
+							breath_rate_RR: data.hrvRR[k].breath_rate_RR, breath_rate: null,
+							heart_rate: sum_heart_rate/(k-k_old)});
 						k_old = k;
-						data.hrvBreath.push({time_breath: data.hrvRR[k].time_RR, breath_rate_RR: data.hrvRR[k].breath_rate_RR, breath_rate: null});
-					//}
+						sum_heart_rate = 0; //60/data.hrvRR[k_old].vCleanRR;
+						//}
 				//} else {
 				//	data.hrvRR[k].vCleanRR = (rrp1+rrm1)/2;
 				//}
@@ -720,7 +737,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		for (var i = 0; i < data.hrvBreath.length; i++) {
 			y.push(data.hrvBreath[i].breath_rate_RR);
 		}
-		var yfiltered = averfilter(y, 15);
+		var yfiltered = averfilter(y, 30);
 		for (var i = 0; i < y.length; i++) {
 			data.hrvBreath[i].breath_rate = yfiltered[i]
 		}
@@ -750,6 +767,10 @@ document.addEventListener('DOMContentLoaded', function () {
 			yOptionsHere[ykey].sort();
 		}
 		yOptions = yOptionsHere;
+		
+		// forced add breath_rate for xaxis = timestamp
+		yOptions["timestamp"].push("breath_rate");
+
 		if (noXaxisFlag) document.getElementById('xaxis').value = "distance";
 		cleanPlotFlag = noXaxisFlag;
 		document.getElementById('xaxis').dispatchEvent(new Event('change'));
