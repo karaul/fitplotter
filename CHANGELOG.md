@@ -9,7 +9,7 @@ Changes of the `fitplotter` project are documented in this file
 
 ## 2021-03-22
 
-- Added RR intervals and respiratory rate from HRV data
+- Added RR intervals and respiratory rate from HRV data. Select the corresponding x-axis
 
 ## 2021-03-11
 
