@@ -225,24 +225,51 @@ document.addEventListener('DOMContentLoaded', function () {
 					indexLabel: (k % 4 == 0) ? k.toString() : ""
 				});
 			}
-		} else {
-			if (fieldx === "lap_number") {
-				for (let k = 0; k < fitdatalocal.laps.length; k++) {
-					dataPoints.push({
-						x: k,
-						y: fitdatalocal.laps[k][fieldy],
-					});
-				}
-			} else {
-				for (let k in fitdatalocal.records) {
-					let x = fitdatalocal.records[k][fieldx];
-					if (!isNaN(x)) {
-						dataPoints.push({
-							x: x,
-							y: fitdatalocal.records[k][fieldy]
-						});
-					}
-				}
+			return dataPoints;
+		} 
+		if (fieldx === "lap_number") {
+			for (let k = 0; k < fitdatalocal.laps.length; k++) {
+				dataPoints.push({
+					x: k,
+					y: fitdatalocal.laps[k][fieldy],
+				});
+			}
+			return dataPoints;
+		} 
+		if (fieldx === "time_hrv") {
+			for (let k = 0; k < fitdatalocal.hrv.length; k++) {
+				dataPoints.push({
+					x: fitdatalocal.hrv[k][fieldx],
+					y: fitdatalocal.hrv[k][fieldy],
+				});
+			}
+			return dataPoints;
+		} 
+		if (fieldx === "time_RR") {
+			for (let k = 0; k < fitdatalocal.hrvRR.length; k++) {
+				dataPoints.push({
+					x: fitdatalocal.hrvRR[k][fieldx],
+					y: fitdatalocal.hrvRR[k][fieldy],
+				});
+			}
+			return dataPoints;
+		} 
+		if (fieldx === "time_breath") {
+			for (let k = 0; k < fitdatalocal.hrvBreath.length; k++) {
+				dataPoints.push({
+					x: fitdatalocal.hrvBreath[k][fieldx],
+					y: fitdatalocal.hrvBreath[k][fieldy],
+				});
+			}
+			return dataPoints;
+		} 
+		for (let k in fitdatalocal.records) {
+			let x = fitdatalocal.records[k][fieldx];
+			if (!isNaN(x)) {
+				dataPoints.push({
+					x: x,
+					y: fitdatalocal.records[k][fieldy]
+				});
 			}
 		}
 		return dataPoints;
@@ -332,6 +359,12 @@ document.addEventListener('DOMContentLoaded', function () {
 			markerType = "triangle";
 			markerSize = 8;
 		}
+		if ( (yobj.value.slice(0, 1) === "v" && xobj.value === "time_hrv") ||
+			 (yobj.value.slice(-2) === "RR") ) {
+			//chartdataType = "scatter";
+			markerType = "square";
+			markerSize = 4;
+		}
 		if (xobj.value === "lap_number") {
 			chartdataType = "column";
 		}
@@ -376,7 +409,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	function updateMapSegment(e) {
 		//console.log(document.getElementById('xaxis').value);
-		if (document.getElementById('xaxis').value === "lap_number") {} else {
+		const  showMapSegmentFlag = !( (document.getElementById('xaxis').value === "lap_number") 
+			|| (document.getElementById('xaxis').value === "time_hrv") 
+			|| (document.getElementById('xaxis').value === "time_RR") 
+			|| (document.getElementById('xaxis').value === "time_breath") );
+		if ( showMapSegmentFlag ) {
 			if (e.trigger === "zoom") {
 				let xMin = e.axisX[0].viewportMinimum;
 				xMin = (xMin == null) ? chart.axisX[0].get("minimum") : xMin;
@@ -632,15 +669,76 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 		}
 
+		// rewrite HRV,  create RR
+		data.hrv = data.hrv || [];
+		data.hrvRR = data.hrvRR || [];
+		let kRR = 0;
+		for (let k in data.hrv) {
+			//let s=0;
+			for(i=0; i<data.hrv[k].time.length; i++){
+				if ( data.hrv[k].time[i] < 65 ) {
+					const rr = data.hrv[k].time[i];
+					const time_RR = kRR==0 ? 0: data.hrvRR[kRR-1].time_RR + rr/3600;
+					data.hrvRR.push( {time_RR: time_RR, vRR: rr, vCleanRR: rr,  heart_rate: 60/rr} );
+					kRR++;
+					//s += rr;
+					//data.hrv[k]["v" + i.toString()] = rr;
+				}
+			}
+			//delete data.hrv[k]["time"];
+            //data.hrv[k].time_hrv = (k == 0 ? 0:  data.hrv[k-1].time_hrv + s/(0+3600));
+            //data.hrv[k].heart_rate = 60/data.hrv[k].v0;    //s;
+		}
+
+		// calculate breath_rate
+		data.hrvBreath = data.hrvBreath || [];
+		let k_old = 0;
+		for (let k=1; k < data.hrvRR.length-1; k++) {
+			let rrm1 = data.hrvRR[k-1].vCleanRR;
+			let rr = data.hrvRR[k].vCleanRR;
+			let rrp1 = data.hrvRR[k+1].vCleanRR;
+			//data.hrvRR[k].vCleanRR  = (Math.abs(1-rr/((rrp1+rrm1)/2))) < 0.2 ? rr: (rrp1+rrm1)/2;
+			if (rr > rrm1 && rr >= rrp1) {
+				//if (rr < 0.8*(rrp1+rrm1)) {
+					//if(k_old < 0) {
+					//	kold = k;
+					//} else {
+						data.hrvRR[k].breath_rate_RR = 1/60/(data.hrvRR[k].time_RR -data.hrvRR[k_old].time_RR);
+						//if(k_old == 0) data.hrvRR[0].breath_rate_RR = data.hrvRR[k].breath_rate_RR;
+						k_old = k;
+						data.hrvBreath.push({time_breath: data.hrvRR[k].time_RR, breath_rate_RR: data.hrvRR[k].breath_rate_RR, breath_rate: null});
+					//}
+				//} else {
+				//	data.hrvRR[k].vCleanRR = (rrp1+rrm1)/2;
+				//}
+
+			}
+		}
+
+		// moving average for breath_rate
+		var y = [];
+		for (var i = 0; i < data.hrvBreath.length; i++) {
+			y.push(data.hrvBreath[i].breath_rate_RR);
+		}
+		var yfiltered = averfilter(y, 20);
+		for (var i = 0; i < y.length; i++) {
+			data.hrvBreath[i].breath_rate = yfiltered[i]
+		}
+
+		
+
+		console.log(data);
 		fitdata = data;
 
 		// define yOptions for ylist dropbox
 		let noXaxisFlag = (document.getElementById('xaxis').options.length == 0);
 		let yOptionsHere = [];
 		for (let [ykey, yrecords] of Object.entries({
-				distance: "records",
-				timestamp: "records",
-				lap_number: "laps"
+				distance: "records"
+				,timestamp: "records"
+				,lap_number: "laps"
+				,time_RR: "hrvRR"
+				,time_breath: "hrvBreath" 
 			})) {
 			if (noXaxisFlag) document.getElementById('xaxis').options.add(new Option(ykey, ykey));
 			for (let datarow of data[yrecords]) {
