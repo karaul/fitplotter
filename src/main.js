@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	//============ Global variables  ======================================================//
 	//var filename = '';
 	var fitdataObj = {};
-	var fitdata = {};	
+	var fitdata = {};
 	var activityLabel = '';
 	var cleanPlotFlag = true;
 	var fReader = new FileReader();
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				});
 			}
 			return dataPoints;
-		} 
+		}
 		if (fieldx === "lap_number") {
 			for (let k = 0; k < fitdatalocal.laps.length; k++) {
 				dataPoints.push({
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				});
 			}
 			return dataPoints;
-		} 
+		}
 		if (fieldx === "time_hrv") {
 			for (let k = 0; k < fitdatalocal.hrv.length; k++) {
 				dataPoints.push({
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				});
 			}
 			return dataPoints;
-		} 
+		}
 		if (fieldx === "time_RR") {
 			for (let k = 0; k < fitdatalocal.hrvRR.length; k++) {
 				dataPoints.push({
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				});
 			}
 			return dataPoints;
-		} 
+		}
 		if (fieldx === "time_breath") {
 			for (let k = 0; k < fitdatalocal.hrvBreath.length; k++) {
 				dataPoints.push({
@@ -262,8 +262,8 @@ document.addEventListener('DOMContentLoaded', function () {
 				});
 			}
 			return dataPoints;
-		} 
-		if (fieldy === "breath_rate" &&  fieldx === "timestamp") {
+		}
+		if (fieldy === "breath_rate" && fieldx === "timestamp") {
 			for (let k = 0; k < fitdatalocal.hrvBreath.length; k++) {
 				dataPoints.push({
 					x: fitdatalocal.hrvBreath[k]["time_breath"],
@@ -370,8 +370,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			markerType = "triangle";
 			markerSize = 8;
 		}
-		if ( (yobj.value.slice(0, 1) === "v" && xobj.value === "time_hrv") ||
-			 (yobj.value.slice(-2) === "RR") ) {
+		if ((yobj.value.slice(0, 1) === "v" && xobj.value === "time_hrv") ||
+			(yobj.value.slice(-2) === "RR")) {
 			//chartdataType = "scatter";
 			markerType = "square";
 			markerSize = 4;
@@ -420,11 +420,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	function updateMapSegment(e) {
 		//console.log(document.getElementById('xaxis').value);
-		const  showMapSegmentFlag = !( (document.getElementById('xaxis').value === "lap_number") 
-			|| (document.getElementById('xaxis').value === "time_hrv") 
-			|| (document.getElementById('xaxis').value === "time_RR") 
-			|| (document.getElementById('xaxis').value === "time_breath") );
-		if ( showMapSegmentFlag ) {
+		const showMapSegmentFlag = !((document.getElementById('xaxis').value === "lap_number") ||
+			(document.getElementById('xaxis').value === "time_hrv") ||
+			(document.getElementById('xaxis').value === "time_RR") ||
+			(document.getElementById('xaxis').value === "time_breath"));
+		if (showMapSegmentFlag) {
 			if (e.trigger === "zoom") {
 				let xMin = e.axisX[0].viewportMinimum;
 				xMin = (xMin == null) ? chart.axisX[0].get("minimum") : xMin;
@@ -601,13 +601,13 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	fReader.onload = function (e) {
-		let blob =e.target.result; // it contains an ArrayBuffer
+		let blob = e.target.result; // it contains an ArrayBuffer
 		parseBLOB(blob);
 	}
 
-	function errorNoFile(error,filename, errorId) {
-		let name = filename.replace(/LevelUp/g, '/../').replace("plus","+");
-		let files = document.getElementById("files");		
+	function errorNoFile(error, filename, errorId) {
+		let name = filename.replace(/LevelUp/g, '/../').replace("plus", "+");
+		let files = document.getElementById("files");
 		files.options.remove(files.selectedIndex);
 		console.log(error);
 		switch (errorId) {
@@ -626,13 +626,13 @@ document.addEventListener('DOMContentLoaded', function () {
 	function parseBLOB(blob) {
 		var parser;
 		const filename = document.getElementById("files").value;
-		if (filename.slice(-4) === ".fit") parser=fitParser;
-		if (filename.slice(-4) === ".tkl") parser=tklParser;
+		if (filename.slice(-4) === ".fit") parser = fitParser;
+		if (filename.slice(-4) === ".tkl") parser = tklParser;
 		let timeStartParsing = performance.now();
 		parser.parse(blob, function (error, data) {
 			if (error) {
-				errorNoFile(error,filename,2);
-			  // remove the latest added options in the files				
+				errorNoFile(error, filename, 2);
+				// remove the latest added options in the files				
 			} else {
 				let timeEndParsing = performance.now();
 				console.log('file parsing takes: ' + parseFloat(timeEndParsing - timeStartParsing) + ' ms');
@@ -680,69 +680,80 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 		}
 
-		// rewrite HRV,  create RR
-		data.hrv = data.hrv || [];
-		data.hrvRR = data.hrvRR || [];
-		let kRR = 0;
-		for (let k in data.hrv) {
-			//let s=0;
-			for(i=0; i<data.hrv[k].time.length; i++){
-				const dataExist = (data.hrv[k].time[i] < 65); //  when = 65.325 - not a data
-				if ( dataExist) {
-					const rr = data.hrv[k].time[i];
-					const time_RR = kRR==0 ? 0: data.hrvRR[kRR-1].time_RR + rr/3600;
-					data.hrvRR.push( {time_RR: time_RR, vRR: rr, vCleanRR: rr,  heart_rate: 60/rr} );
-					kRR++;
-					//s += rr;
-					//data.hrv[k]["v" + i.toString()] = rr;
+		
+		let existHRV = "hrv" in data && data.hrv.length > 0;
+		if (existHRV) {
+			// rewrite HRV,  create RR
+			data.hrv = data.hrv || [];
+			data.hrvRR = data.hrvRR || [];
+			let kRR = 0;
+			for (let k in data.hrv) {
+				//let s=0;
+				for (i = 0; i < data.hrv[k].time.length; i++) {
+					const dataExist = (data.hrv[k].time[i] < 65); //  when = 65.325 - not a data
+					if (dataExist) {
+						const rr = data.hrv[k].time[i];
+						const time_RR = kRR == 0 ? 0 : data.hrvRR[kRR - 1].time_RR + rr / 3600;
+						data.hrvRR.push({
+							time_RR: time_RR,
+							vRR: rr,
+							vCleanRR: rr,
+							heart_rate: 60 / rr
+						});
+						kRR++;
+						//s += rr;
+						//data.hrv[k]["v" + i.toString()] = rr;
+					}
 				}
+				//delete data.hrv[k]["time"];
+				//data.hrv[k].time_hrv = (k == 0 ? 0:  data.hrv[k-1].time_hrv + s/(0+3600));
+				//data.hrv[k].heart_rate = 60/data.hrv[k].v0;    //s;
 			}
-			//delete data.hrv[k]["time"];
-            //data.hrv[k].time_hrv = (k == 0 ? 0:  data.hrv[k-1].time_hrv + s/(0+3600));
-            //data.hrv[k].heart_rate = 60/data.hrv[k].v0;    //s;
-		}
 
-		// calculate breath_rate
-		data.hrvBreath = data.hrvBreath || [];
-		let k_old = 0;
-		let sum_heart_rate = 0; // 60/data.hrvRR[k_old].vCleanRR;
-		for (let k=1; k < data.hrvRR.length-1; k++) {
-			let rrm1 = data.hrvRR[k-1].vCleanRR;
-			let rr = data.hrvRR[k].vCleanRR;
-			let rrp1 = data.hrvRR[k+1].vCleanRR;
-			sum_heart_rate += 60/data.hrvRR[k].vCleanRR;
-			//data.hrvRR[k].vCleanRR  = (Math.abs(1-rr/((rrp1+rrm1)/2))) < 0.2 ? rr: (rrp1+rrm1)/2;
-			if (rr > rrm1 && rr >= rrp1) {
-				//if (rr < 0.8*(rrp1+rrm1)) {
+			// calculate breath_rate
+			data.hrvBreath = data.hrvBreath || [];
+			let k_old = 0;
+			let sum_heart_rate = 0; // 60/data.hrvRR[k_old].vCleanRR;
+			for (let k = 1; k < data.hrvRR.length - 1; k++) {
+				let rrm1 = data.hrvRR[k - 1].vCleanRR;
+				let rr = data.hrvRR[k].vCleanRR;
+				let rrp1 = data.hrvRR[k + 1].vCleanRR;
+				sum_heart_rate += 60 / data.hrvRR[k].vCleanRR;
+				//data.hrvRR[k].vCleanRR  = (Math.abs(1-rr/((rrp1+rrm1)/2))) < 0.2 ? rr: (rrp1+rrm1)/2;
+				if (rr > rrm1 && rr >= rrp1) {
+					//if (rr < 0.8*(rrp1+rrm1)) {
 					//if(k_old < 0) {
 					//	kold = k;
 					//} else {
-						data.hrvRR[k].breath_rate_RR = 1/60/(data.hrvRR[k].time_RR -data.hrvRR[k_old].time_RR);
-						//if(k_old == 0) data.hrvRR[0].breath_rate_RR = data.hrvRR[k].breath_rate_RR;
-						data.hrvBreath.push({time_breath: data.hrvRR[k].time_RR, 
-							breath_rate_RR: data.hrvRR[k].breath_rate_RR, breath_rate: null,
-							heart_rate: sum_heart_rate/(k-k_old)});
-						k_old = k;
-						sum_heart_rate = 0; //60/data.hrvRR[k_old].vCleanRR;
-						//}
-				//} else {
-				//	data.hrvRR[k].vCleanRR = (rrp1+rrm1)/2;
-				//}
+					data.hrvRR[k].breath_rate_RR = 1 / 60 / (data.hrvRR[k].time_RR - data.hrvRR[k_old].time_RR);
+					//if(k_old == 0) data.hrvRR[0].breath_rate_RR = data.hrvRR[k].breath_rate_RR;
+					data.hrvBreath.push({
+						time_breath: data.hrvRR[k].time_RR,
+						breath_rate_RR: data.hrvRR[k].breath_rate_RR,
+						breath_rate: null,
+						heart_rate: sum_heart_rate / (k - k_old)
+					});
+					k_old = k;
+					sum_heart_rate = 0; //60/data.hrvRR[k_old].vCleanRR;
+					//}
+					//} else {
+					//	data.hrvRR[k].vCleanRR = (rrp1+rrm1)/2;
+					//}
 
+				}
+			}
+
+			// moving average for breath_rate
+			var y = [];
+			for (var i = 0; i < data.hrvBreath.length; i++) {
+				y.push(data.hrvBreath[i].breath_rate_RR);
+			}
+			var yfiltered = averfilter(y, 30);
+			for (var i = 0; i < y.length; i++) {
+				data.hrvBreath[i].breath_rate = yfiltered[i]
 			}
 		}
 
-		// moving average for breath_rate
-		var y = [];
-		for (var i = 0; i < data.hrvBreath.length; i++) {
-			y.push(data.hrvBreath[i].breath_rate_RR);
-		}
-		var yfiltered = averfilter(y, 30);
-		for (var i = 0; i < y.length; i++) {
-			data.hrvBreath[i].breath_rate = yfiltered[i]
-		}
-
-		
 
 		console.log(data);
 		fitdata = data;
@@ -750,13 +761,12 @@ document.addEventListener('DOMContentLoaded', function () {
 		// define yOptions for ylist dropbox
 		let noXaxisFlag = (document.getElementById('xaxis').options.length == 0);
 		let yOptionsHere = [];
-		for (let [ykey, yrecords] of Object.entries({
-				distance: "records"
-				,timestamp: "records"
-				,lap_number: "laps"
-				,time_RR: "hrvRR"
-				,time_breath: "hrvBreath" 
-			})) {
+		let xAxisOptions ={ distance: "records", timestamp: "records", lap_number: "laps"};
+		if (existHRV) {
+			xAxisOptions.time_RR = "hrvRR";
+			xAxisOptions.time_breath = "hrvBreath";
+		}
+		for (let [ykey, yrecords] of Object.entries(xAxisOptions)) {
 			if (noXaxisFlag) document.getElementById('xaxis').options.add(new Option(ykey, ykey));
 			for (let datarow of data[yrecords]) {
 				for (let [key, value] of Object.entries(datarow)) {
@@ -767,7 +777,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			yOptionsHere[ykey].sort();
 		}
 		yOptions = yOptionsHere;
-		
+
 		// forced add breath_rate for xaxis = timestamp
 		yOptions["timestamp"].push("breath_rate");
 
@@ -777,7 +787,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		const files = document.getElementById("files");
 		const filename = files.options[files.selectedIndex].value;
-		const filesText = activityLabel + " ["+ filename.replace(/^.*[\\\/]/, '').slice(0,10) + "..." + filename.slice(-4) + "]";
+		const filesText = activityLabel + " [" + filename.replace(/^.*[\\\/]/, '').slice(0, 10) + "..." + filename.slice(-4) + "]";
 		files.options[files.selectedIndex].text = filesText;
 		fitdataObj[filename] = {
 			data: fitdata,
@@ -789,11 +799,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	function prepareFitDataMap(fitdata) {
 		// now work with leaflet 
-		let trackdata = [], latt_aver = 0, long_aver = 0, ncoor=0;
- 		fitdata.records.forEach(element => {
+		let trackdata = [],
+			latt_aver = 0,
+			long_aver = 0,
+			ncoor = 0;
+		fitdata.records.forEach(element => {
 			let x = element.position_lat;
 			let y = element.position_long;
-			if ( !( isNaN(x) || isNaN(y) ) ) { 
+			if (!(isNaN(x) || isNaN(y))) {
 				trackdata.push([x, y]);
 				latt_aver += x;
 				long_aver += y;
@@ -802,14 +815,16 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 		withGPS = trackdata.length > 0;
 		if (withGPS) {
-			mymap.setView([latt_aver/ncoor,long_aver/ncoor], 14);
+			mymap.setView([latt_aver / ncoor, long_aver / ncoor], 14);
 			let givencolors = ["blue", "green", "magenta", "brown", "purple", "olive", "cyan"];
 			let k = Ltracks.length % givencolors.length;
-			let track = L.polyline(trackdata, {color: givencolors[k]}).addTo(mymap);
+			let track = L.polyline(trackdata, {
+				color: givencolors[k]
+			}).addTo(mymap);
 			Ltracks.push(track);
 
-			const label = new Date(fitdata.sessions[0]["start_time"]).toISOString().slice(0, 10) 
-				+ " " + fitdata.sessions[0].sport;
+			const label = new Date(fitdata.sessions[0]["start_time"]).toISOString().slice(0, 10) +
+				" " + fitdata.sessions[0].sport;
 			//console.log(label);
 			Lpopups.push(
 				L.popup({
@@ -817,7 +832,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				}).setLatLng(trackdata[Math.round(Math.random() * (trackdata.length - 1) / 2)])
 				.setContent(label).openOn(mymap)
 			);
-			
+
 
 			if (!mymap.hasLayer(mapPosition)) {
 				mapPosition = L.circleMarker(trackdata[0], {
@@ -842,7 +857,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 		} else {
 			var faketrack = [ // fake segment to get popup with averaged
-				  [35.156025,33.3766633], // Nicosia
+				[35.156025, 33.3766633], // Nicosia
 				//[55.752121, 37.617664], // Moscow
 				//[55.830431, 49.066081] // Kazan
 			];
@@ -918,7 +933,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	document.getElementById("updateMap").onclick = function (e) {
-		Object.values(fitdataObj).forEach(v=>{
+		Object.values(fitdataObj).forEach(v => {
 			prepareFitDataMap(v.data);
 		})
 	}
@@ -930,7 +945,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	//var csrf_token = "";
 	document.getElementById("download").onclick = function (e) {
-		let fileUrl; 
+		let fileUrl;
 		// get_activity_summary
 		// https://connect.garmin.com/proxy/activity-service/activity/6298180784 - gives summary as JSON
 		// activity_details
@@ -938,17 +953,17 @@ document.addEventListener('DOMContentLoaded', function () {
 		// strava
 		// https://www.strava.com/activities/4813519589 // activity page
 		// https://www.strava.com/activities/4813519589/export_original // download URL
-		if ( document.getElementById('downloadURL').value.indexOf("garmin") > 0	)
+		if (document.getElementById('downloadURL').value.indexOf("garmin") > 0)
 			// garmin fit format;  was working  on 2021-03-06
 			fileUrl = "https://connect.garmin.com/proxy/download-service/files/activity/xxxxxxxxxx";
-		if ( document.getElementById('downloadURL').value.indexOf("strava") > 0	)
+		if (document.getElementById('downloadURL').value.indexOf("strava") > 0)
 			// strava original fit format;  was working  on 2021-03-06
 			fileUrl = "https://www.strava.com/activities/xxxxxxxxxx/export_original";
-	    let id = document.getElementById('downloadURL').value.split("/").slice(-1);
+		let id = document.getElementById('downloadURL').value.split("/").slice(-1);
 		//id = "6277409729" // garmin;
 		//id = "6277409729" // garmin;
 		//console.log(id);
-		let  downloadUrl = fileUrl.replace("xxxxxxxxxx",id);
+		let downloadUrl = fileUrl.replace("xxxxxxxxxx", id);
 		//console.log(downloadUrl);
 		// to download the current id 
 		window.location.href = downloadUrl;
@@ -973,55 +988,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	document.getElementById("files").onchange = function (e) {
 		const filename = document.getElementById("files").value;
-		if(filename in fitdataObj) {
+		if (filename in fitdataObj) {
 			fitdata = fitdataObj[filename].data;
 			yOptions = fitdataObj[filename].yOptions;
 			activityLabel = new Date(fitdata.sessions[0]["start_time"]).toISOString().slice(0, 10) + " " + fitdata.sessions[0].sport;
 			document.getElementById("openmode").value = "manualmode";
 			cleanPlotFlag = false;
 			document.getElementById("xaxis").dispatchEvent(new Event("change"));
-		}
-		else { 
+		} else {
 			makeXMLHttpRequest(filename);
 		}
 	}
 
 	function httpRequestOnLoad() {
-		if (this.readyState  === 4) {
-		   if (this.status === 200) {
-			   const blob = new Uint8Array(this.response);
-			   parseBLOB(blob);
-			}			
-			if (this.status === 404) {
-				const  filename = document.getElementById("files").value;
-				errorNoFile("status 404",filename, 1);	
+		if (this.readyState === 4) {
+			if (this.status === 200) {
+				const blob = new Uint8Array(this.response);
+				parseBLOB(blob);
 			}
-		}		
+			if (this.status === 404) {
+				const filename = document.getElementById("files").value;
+				errorNoFile("status 404", filename, 1);
+			}
+		}
 	}
 
-	const queryString = window.location.search; 
-	const urlParams = new URLSearchParams(queryString);	
-	if ( urlParams.get('file') != null ) {
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	if (urlParams.get('file') != null) {
 		const filename = urlParams.get('file');
 		const files = document.getElementById("files");
 		files.options.add(new Option("filename", filename));
 		files.value = filename;
-		makeXMLHttpRequest( filename );
+		makeXMLHttpRequest(filename);
 	}
 
 	function makeXMLHttpRequest(filename) {
 		//console.log(filename);    
-		let filenamexhr = "./../" + filename.replace("plus","+");
-		let xhr = new XMLHttpRequest();			
+		let filenamexhr = "./../" + filename.replace("plus", "+");
+		let xhr = new XMLHttpRequest();
 		xhr.onload = httpRequestOnLoad;
 		xhr.open('GET', decodeURI(filenamexhr), true);
 		xhr.responseType = 'arraybuffer';
 		xhr.onerror = function (e) {
-			console.log(error(xhr.statusText));	
+			console.log(error(xhr.statusText));
 			// remove the latest added options in the files
-			document.getElementById("files").options.pop();  
+			document.getElementById("files").options.pop();
 		}
-		xhr.send(null);				
+		xhr.send(null);
 	}
 
 });
