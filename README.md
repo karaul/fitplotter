@@ -43,7 +43,7 @@ Garmin device does  recording the measured paremeters into a binary `.fit` file 
 
 ### Installation for programmers who found it in github
 
-`github clone https://github.com/karaul/fitplotter.git`
+`git clone https://github.com/karaul/fitplotter.git`
 
 ## Usage
 
