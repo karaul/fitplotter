@@ -774,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					if (!yOptionsHere[ykey].includes(key)) yOptionsHere[ykey].push(key);
 				}
 			}
-			yOptionsHere[ykey].sort();
+			//yOptionsHere[ykey].sort();
 		}
 		yOptions = yOptionsHere;
 

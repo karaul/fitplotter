@@ -1,12 +1,5 @@
-//One big JS file from the four
+// adapted from https://github.com/jimmykane/fit-parser
 
-//fit-parser.js
-//I made a change to code at line 22 as I already have obtained an array buffer - using async await code 
-//I don't know how to refactor to make it work without the change.
-
-//import { getArrayBuffer, calculateCRC, readRecord } from './binary';
-
-//export default 
 class FitParser {
   constructor(options = {}) {
     this.options = {
@@ -249,15 +242,9 @@ class FitParser {
   }
 }
 
+//exports.FitParser = FitParser;
+module.exports = FitParser;
 
-//binary.js
-//There is a minor change at about line 92 where I replaced the use of Node's Buffer module that returned a string from an array of ints (bytes). It was only used once so I replaced it with a helper function to do the same. It needs checking to ensure it works with utf-8.
-
-//import { FIT } from './fit';
-//import { getFitMessage, getFitMessageBaseType } from './messages';
-//import { Buffer } from 'buffer/';
-
-//export 
 function addEndian(littleEndian, bytes) {
   let result = 0;
   if (!littleEndian) bytes.reverse();
@@ -329,19 +316,13 @@ function readData(blob, fDef, startIndex, options) {
   }
 
   if (fDef.type === 'string') {
-      const temp = [];
-      for (let i = 0; i < fDef.size; i++) {
-          if (blob[startIndex + i]) {
-              temp.push(blob[startIndex + i]);
+      const _temp = [];
+      for (let i3 = 0; i3 < fDef.size; i3++) {
+          if (blob[startIndex + i3]) {
+              _temp.push(blob[startIndex + i3]);
           }
       }
-      
-  //return new Buffer(temp).toString('utf-8');
-         
-      //GM replaced above by this helper
-      return convertIntArrayToString(temp);
-  
-  
+	return new TextDecoder().decode( new Uint16Array(_temp).buffer );
   }
 
   if (fDef.type === 'byte_array') {
@@ -655,7 +636,6 @@ function readRecord(blob, messageTypes, developerFields, startIndex, options, st
   return result;
 }
 
-//export 
 function getArrayBuffer(buffer) {
   if (buffer instanceof ArrayBuffer) {
       return buffer;
@@ -668,7 +648,6 @@ function getArrayBuffer(buffer) {
   return ab;
 }
 
-//export 
 function calculateCRC(blob, start, end) {
   const crcTable = [
       0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
@@ -689,21 +668,6 @@ function calculateCRC(blob, start, end) {
   return crc;
 }
 
-
-//GM added this function so I didn't have to use the Node Buffer module
-function convertIntArrayToString(intarray) {
-let str = '';
-for (let i = 0; i < intarray.length; i++) {
-  str += String.fromCharCode(intarray[i])
-}
-return str;
-}
-
-
-//messages.js
-//import { getMessageName, getFieldObject } from './fit';
-
-//export 
 function getFitMessage(messageNum) {
   return {
     name: getMessageName(messageNum),
@@ -712,17 +676,27 @@ function getFitMessage(messageNum) {
 }
 
 // TODO
-//export 
 function getFitMessageBaseType(foo) {
   return foo;
 }
 
+function getMessageName(messageNum) {
+  const message = FIT.messages[messageNum];
+  return message ? message.name : '';
+}
 
-//fit.js
+function getFieldObject(fieldNum, messageNum) {
+  const message = FIT.messages[messageNum];
+  if (!message) {
+    return '';
+  }
+  const fieldObj = message[fieldNum];
+  return fieldObj ? fieldObj : {};
+}
+
 // some unit conversion constants
 const metersInOneKilometer = 1000;
 const secondsInOneHour = 3600;
-// according to https://en.wikipedia.org/wiki/Mile
 const metersInOneMile = 1609.344;
 
 //export 
@@ -4964,21 +4938,3 @@ const FIT = {
     }
   },
 };
-
-//export 
-function getMessageName(messageNum) {
-  const message = FIT.messages[messageNum];
-  return message ? message.name : '';
-}
-
-//export 
-function getFieldObject(fieldNum, messageNum) {
-  const message = FIT.messages[messageNum];
-  if (!message) {
-    return '';
-  }
-  const fieldObj = message[fieldNum];
-  return fieldObj ? fieldObj : {};
-}
-
-
