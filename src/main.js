@@ -626,8 +626,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	function parseBLOB(blob) {
 		var parser;
 		const filename = document.getElementById("files").value;
-		if (filename.slice(-4) === ".fit") parser = fitParser;
-		if (filename.slice(-4) === ".tkl") parser = tklParser;
+		if (filename.slice(-4).toLowerCase() === ".fit") parser = fitParser;
+		if (filename.slice(-4).toLowerCase() === ".tkl") parser = tklParser;
 		let timeStartParsing = performance.now();
 		parser.parse(blob, function (error, data) {
 			if (error) {
