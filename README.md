@@ -4,7 +4,9 @@ A simple one-page tool to plot parameters recorded in the `*.fit` file used by G
 
 Starting from 2021-03-03, it also works with `*.tkl` format (watch models: GPSmaster, navrun-500, ultrasport, etc).
 
-Version [online](https://karaul.github.io/fitplotter). If you have no own fit files at the moment, you can download them from [examples](https://github.com/karaul/fitplotter/blob/main/examples/).
+Version [online](https://karaul.github.io/fitplotter). Raw fit- file[viewer](https://www.fitfileviewer.com/)
+
+If you have no own fit files at the moment, you can download them from [examples](https://github.com/karaul/fitplotter/blob/main/examples/).
 
 From 2021-03-08 you can download `*.fit` file from your _Garmin Connect_ account, for how to do it read  __Usage__ section below.
 
